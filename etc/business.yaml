@@ -1,0 +1,15 @@
+Name: tk-business
+ListenOn: 0.0.0.0:9102
+
+Database:
+  DSN: "root:12345678@tcp(127.0.0.1:3306)/nb_sys_001?charset=utf8mb4&parseTime=True&loc=Local"
+
+CacheRedis:
+  Addr: "127.0.0.1:6379"
+  Password: ""
+  DB: 0
+  SceneTTLSeconds: 15
+
+UserRpc:
+  Endpoints:
+    - 127.0.0.1:9103
