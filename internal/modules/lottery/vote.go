@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"tk-shared/models"
+	"tk-common/models"
 
 	"gorm.io/gorm"
 )

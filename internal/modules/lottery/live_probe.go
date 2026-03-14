@@ -1,11 +1,12 @@
 package lottery
 
 import (
-	"io"
-	"net/http"
+	"context"
 	"strings"
 	"sync"
 	"time"
+
+	commonhttpx "tk-common/utils/httpx"
 )
 
 type liveProbeCacheItem struct {
@@ -16,7 +17,7 @@ type liveProbeCacheItem struct {
 var (
 	liveProbeCache sync.Map
 	// 探测请求必须短超时，避免拖慢开奖页主链路（BFF 默认 2s 超时）。
-	liveProbeClient = &http.Client{Timeout: 800 * time.Millisecond}
+	liveProbeClient = commonhttpx.NewTimeoutClient(800 * time.Millisecond)
 )
 
 // probeLiveStreamAvailable 探测直播流是否可播放：
@@ -57,28 +58,24 @@ func probeLiveStreamAvailable(streamURL string) bool {
 
 // refreshLiveProbe 执行真实网络探测，并将结果写回缓存。
 func refreshLiveProbe(url string) {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	statusCode, contentTypeRaw, bodyBytes, err := commonhttpx.GetRange(
+		context.Background(),
+		liveProbeClient,
+		url,
+		"bytes=0-4096",
+		8192,
+	)
 	if err != nil {
 		cacheLiveProbe(url, false, 12*time.Second)
 		return
 	}
-	// 只取首段数据用于探测，不下载完整流。
-	req.Header.Set("Range", "bytes=0-4096")
 
-	resp, err := liveProbeClient.Do(req)
-	if err != nil {
-		cacheLiveProbe(url, false, 12*time.Second)
-		return
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 400 {
+	if statusCode >= 400 {
 		cacheLiveProbe(url, false, 12*time.Second)
 		return
 	}
 
-	contentType := strings.ToLower(strings.TrimSpace(resp.Header.Get("Content-Type")))
-	bodyBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 8192))
+	contentType := strings.ToLower(strings.TrimSpace(contentTypeRaw))
 	body := strings.ToLower(string(bodyBytes))
 
 	hasData := false

@@ -2,9 +2,10 @@ package lottery
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
+
+	redisx "tk-common/utils/redisx/v9"
 )
 
 // liveSceneCacheKey 构造 scene 缓存键：按彩种 ID 隔离，0 代表默认彩种。
@@ -18,16 +19,9 @@ func (s *Service) loadLiveSceneCache(ctx context.Context, specialLotteryID uint)
 	if s.sceneRedis == nil {
 		return nil, false
 	}
-
-	// 读取缓存 JSON 字符串。
-	raw, err := s.sceneRedis.Get(ctx, liveSceneCacheKey(specialLotteryID)).Result()
-	if err != nil || raw == "" {
-		return nil, false
-	}
-
-	// 反序列化为 map，异常则视为缓存失效。
 	payload := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+	hit, err := redisx.GetJSON(ctx, s.sceneRedis, liveSceneCacheKey(specialLotteryID), &payload)
+	if err != nil || !hit {
 		return nil, false
 	}
 	return payload, true
@@ -46,10 +40,6 @@ func (s *Service) saveLiveSceneCache(ctx context.Context, specialLotteryID uint,
 		ttl = 15 * time.Second
 	}
 
-	// 序列化失败则直接放弃写缓存，避免影响主链路。
-	raw, err := json.Marshal(payload)
-	if err != nil {
-		return
-	}
-	_ = s.sceneRedis.Set(ctx, liveSceneCacheKey(specialLotteryID), string(raw), ttl).Err()
+	// 写缓存失败不影响主流程。
+	_ = redisx.SetJSON(ctx, s.sceneRedis, liveSceneCacheKey(specialLotteryID), payload, ttl)
 }

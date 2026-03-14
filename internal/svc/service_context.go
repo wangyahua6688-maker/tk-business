@@ -1,6 +1,7 @@
 package svc
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	lotteryModule "tk-business/internal/modules/lottery"
 	"tk-business/internal/platform/database"
 	"tk-business/internal/userclient"
+	redisx "tk-common/utils/redisx/v9"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -41,11 +43,14 @@ func NewServiceContext(c config.Config) (*ServiceContext, error) {
 	// 4) 初始化 Redis 缓存客户端（可选）。
 	var redisClient *redis.Client
 	if strings.TrimSpace(c.CacheRedis.Addr) != "" {
-		redisClient = redis.NewClient(&redis.Options{
-			Addr:     strings.TrimSpace(c.CacheRedis.Addr),
-			Password: c.CacheRedis.Password,
-			DB:       c.CacheRedis.DB,
-		})
+		redisCfg := redisx.DefaultConfig()
+		redisCfg.Addr = strings.TrimSpace(c.CacheRedis.Addr)
+		redisCfg.Password = c.CacheRedis.Password
+		redisCfg.DB = c.CacheRedis.DB
+		cli, redisErr := redisx.NewClient(context.Background(), redisCfg)
+		if redisErr == nil {
+			redisClient = cli
+		}
 	}
 	sceneTTL := time.Duration(c.CacheRedis.SceneTTLSeconds) * time.Second
 

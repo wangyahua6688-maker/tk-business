@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-shared/models"
+	"tk-common/models"
 )
 
 // activeInTimeRange 判断配置对象是否处于生效时间窗口内。

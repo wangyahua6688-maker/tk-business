@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-shared/models"
+	"tk-common/models"
 
 	"gorm.io/gorm"
 )

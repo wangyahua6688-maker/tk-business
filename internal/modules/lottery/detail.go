@@ -3,7 +3,7 @@ package lottery
 import (
 	"context"
 
-	"tk-shared/models"
+	"tk-common/models"
 )
 
 // BuildDetail 构建彩票详情页数据。

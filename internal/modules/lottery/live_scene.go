@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-shared/models"
+	"tk-common/models"
 )
 
 // BuildLiveScenePage 构建“开奖现场”整页数据。

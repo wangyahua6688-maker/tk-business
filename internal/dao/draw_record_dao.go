@@ -3,7 +3,7 @@ package dao
 import (
 	"strings"
 
-	"tk-shared/models"
+	"tk-common/models"
 )
 
 // GetLatestDrawRecordBySpecialID 查询指定彩种最新一期开奖记录。

@@ -1,6 +1,6 @@
 package lottery
 
-import "tk-shared/models"
+import "tk-common/models"
 
 // defaultPollOptionNames 返回系统默认的生肖投票项。
 // 说明：

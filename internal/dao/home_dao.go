@@ -6,7 +6,7 @@ import (
 
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
-	"tk-shared/models"
+	"tk-common/models"
 )
 
 // HomeDAO 首页数据访问层。
