@@ -11,6 +11,7 @@ import (
 func (s *BusinessServer) HomeOverview(_ context.Context, _ *tkv1.HomeOverviewRequest) (*tkv1.JsonDataReply, error) {
 	// 1) 调用首页聚合模块查询 banner/广播/分类等基础数据。
 	payload, err := s.ctx.HomeCore.BuildOverview()
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
 		// 2) 将内部错误映射为业务码，避免把底层错误暴露到外部。
 		return &tkv1.JsonDataReply{Code: 50001, Msg: "failed to build home overview"}, nil
@@ -23,6 +24,7 @@ func (s *BusinessServer) HomeOverview(_ context.Context, _ *tkv1.HomeOverviewReq
 func (s *BusinessServer) LotteryCategories(_ context.Context, req *tkv1.CategoryLibraryRequest) (*tkv1.JsonDataReply, error) {
 	// 1) 传入关键字进行模糊筛选。
 	payload, err := s.ctx.HomeCore.ListCategoryLibrary(req.GetKeyword())
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
 		// 2) 失败返回业务码，BFF 层会原样透传。
 		return &tkv1.JsonDataReply{Code: 50002, Msg: "failed to load lottery categories"}, nil

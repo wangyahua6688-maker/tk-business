@@ -17,42 +17,59 @@ const defaultDSN = "root:12345678@tcp(127.0.0.1:3306)/nb_sys_001?charset=utf8mb4
 func main() {
 	// 1) 优先读取环境变量 DSN，便于在不同环境复用同一脚本。
 	dsn := strings.TrimSpace(os.Getenv("TK_DB_DSN"))
+	// 判断条件并进入对应分支逻辑。
 	if dsn == "" {
+		// 更新当前变量或字段值。
 		dsn = defaultDSN
 	}
 
 	// 2) 建立数据库连接并探活，提前暴露连接错误。
 	db, err := sql.Open("mysql", dsn)
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("open mysql failed: %v", err)
 	}
+	// 注册延迟执行逻辑。
 	defer db.Close()
+	// 判断条件并进入对应分支逻辑。
 	if err := db.Ping(); err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("ping mysql failed: %v", err)
 	}
 
+	// 调用log.Println完成当前处理。
 	log.Println("start migrate w_* -> tk_* ...")
 
 	// 3) 先做结构对齐，避免后续导入时因表/字段不存在失败。
 	if err := ensureSchema(db); err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("ensure schema failed: %v", err)
 	}
 
 	// 4) 再做数据迁移：外链、分类、图纸三块按需求导入。
 	if err := migrateExternalLinks(db); err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("migrate external links failed: %v", err)
 	}
+	// 判断条件并进入对应分支逻辑。
 	if err := migrateCategories(db); err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("migrate categories failed: %v", err)
 	}
+	// 判断条件并进入对应分支逻辑。
 	if err := migrateLotteryInfo(db); err != nil {
+		// 调用log.Fatalf完成当前处理。
 		log.Fatalf("migrate lottery_info failed: %v", err)
 	}
 
 	// 5) 输出迁移后的统计信息，便于快速核对结果。
 	printCount(db, "tk_external_link")
+	// 调用printCount完成当前处理。
 	printCount(db, "tk_lottery_category")
+	// 调用printCount完成当前处理。
 	printCount(db, "tk_lottery_info")
+	// 调用log.Println完成当前处理。
 	log.Println("migrate done")
 }
 
@@ -60,6 +77,7 @@ func main() {
 func ensureSchema(db *sql.DB) error {
 	// A) 外链表：若不存在则创建；若已存在但缺字段则补字段。
 	if !tableExists(db, "tk_external_link") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "create tk_external_link", `
 CREATE TABLE IF NOT EXISTS tk_external_link (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -78,28 +96,36 @@ CREATE TABLE IF NOT EXISTS tk_external_link (
   KEY idx_tk_external_link_status_sort (status, sort)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='外链配置表';
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_external_link", "icon_url") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_external_link add icon_url", `
 ALTER TABLE tk_external_link
   ADD COLUMN icon_url VARCHAR(255) NOT NULL DEFAULT '' COMMENT '图标地址（用于金刚导航）' AFTER position;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_external_link", "group_key") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_external_link add group_key", `
 ALTER TABLE tk_external_link
   ADD COLUMN group_key VARCHAR(32) NOT NULL DEFAULT '' COMMENT '分组键（如：aocai/hkcai/default）' AFTER icon_url;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
 
 	// B) 分类表：当前库缺 tk_lottery_category 时直接建表。
 	if !tableExists(db, "tk_lottery_category") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "create tk_lottery_category", `
 CREATE TABLE IF NOT EXISTS tk_lottery_category (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -116,67 +142,89 @@ CREATE TABLE IF NOT EXISTS tk_lottery_category (
   KEY idx_tk_lottery_category_status_sort (status, sort)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='图库分类配置表';
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
 
 	// C) 图纸表：补齐分类与开奖号码新字段，供“分类单选 + 6+1 开奖录入”使用。
 	if !columnExists(db, "tk_lottery_info", "category_id") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_lottery_info add category_id", `
 ALTER TABLE tk_lottery_info
   ADD COLUMN category_id BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '图库分类ID（关联tk_lottery_category.id）' AFTER special_lottery_id;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_lottery_info", "category_tag") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_lottery_info add category_tag", `
 ALTER TABLE tk_lottery_info
   ADD COLUMN category_tag VARCHAR(32) NOT NULL DEFAULT '' COMMENT '分类标识兼容字段（通常等于category_key）' AFTER category_id;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_lottery_info", "normal_draw_result") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_lottery_info add normal_draw_result", `
 ALTER TABLE tk_lottery_info
   ADD COLUMN normal_draw_result VARCHAR(64) NOT NULL DEFAULT '' COMMENT '普通号码（6个，逗号分隔）' AFTER draw_code;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_lottery_info", "special_draw_result") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_lottery_info add special_draw_result", `
 ALTER TABLE tk_lottery_info
   ADD COLUMN special_draw_result VARCHAR(16) NOT NULL DEFAULT '' COMMENT '特别号码（1个）' AFTER normal_draw_result;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !columnExists(db, "tk_lottery_info", "playback_url") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "alter tk_lottery_info add playback_url", `
 ALTER TABLE tk_lottery_info
   ADD COLUMN playback_url VARCHAR(255) NOT NULL DEFAULT '' COMMENT '直播回放地址（直播结束后录入）' AFTER draw_at;
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !indexExists(db, "tk_lottery_info", "idx_tk_lottery_info_category_id") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "add idx_tk_lottery_info_category_id", `
 ALTER TABLE tk_lottery_info
   ADD KEY idx_tk_lottery_info_category_id (category_id);
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 判断条件并进入对应分支逻辑。
 	if !indexExists(db, "tk_lottery_info", "idx_tk_lottery_info_category_tag") {
+		// 判断条件并进入对应分支逻辑。
 		if err := execSQL(db, "add idx_tk_lottery_info_category_tag", `
 ALTER TABLE tk_lottery_info
   ADD KEY idx_tk_lottery_info_category_tag (category_tag);
 `); err != nil {
+			// 返回当前处理结果。
 			return err
 		}
 	}
+	// 返回当前处理结果。
 	return nil
 }
 
@@ -184,7 +232,9 @@ ALTER TABLE tk_lottery_info
 func migrateExternalLinks(db *sql.DB) error {
 	// 旧表不存在时直接跳过，保证脚本可在新环境重复执行。
 	if !tableExists(db, "w_external_link") {
+		// 调用log.Println完成当前处理。
 		log.Println("skip external_link: w_external_link not exists")
+		// 返回当前处理结果。
 		return nil
 	}
 
@@ -202,6 +252,7 @@ SET
   t.sort = w.sort,
   t.updated_at = IFNULL(w.updated_at, t.updated_at);
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
 
@@ -220,8 +271,10 @@ LEFT JOIN tk_external_link t
  AND BINARY t.position = BINARY w.position
 WHERE t.id IS NULL;
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
+	// 返回当前处理结果。
 	return nil
 }
 
@@ -229,7 +282,9 @@ WHERE t.id IS NULL;
 func migrateCategories(db *sql.DB) error {
 	// 旧表不存在时跳过。
 	if !tableExists(db, "w_lottery_category") {
+		// 调用log.Println完成当前处理。
 		log.Println("skip lottery_category: w_lottery_category not exists")
+		// 返回当前处理结果。
 		return nil
 	}
 
@@ -246,6 +301,7 @@ SET
   t.sort = w.sort,
   t.updated_at = IFNULL(w.updated_at, t.updated_at);
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
 
@@ -262,8 +318,10 @@ LEFT JOIN tk_lottery_category t
   ON BINARY t.category_key = BINARY w.category_key
 WHERE t.id IS NULL;
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
+	// 返回当前处理结果。
 	return nil
 }
 
@@ -271,7 +329,9 @@ WHERE t.id IS NULL;
 func migrateLotteryInfo(db *sql.DB) error {
 	// 旧表不存在时跳过。
 	if !tableExists(db, "w_lottery_info") {
+		// 调用log.Println完成当前处理。
 		log.Println("skip lottery_info: w_lottery_info not exists")
+		// 返回当前处理结果。
 		return nil
 	}
 
@@ -311,6 +371,7 @@ SET
   t.recommend_info_ids = IFNULL(w.recommend_info_ids, ''),
   t.updated_at = IFNULL(w.updated_at, t.updated_at);
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
 
@@ -345,68 +406,96 @@ LEFT JOIN tk_lottery_info t
  AND BINARY t.title = BINARY w.title
 WHERE t.id IS NULL;
 `); err != nil {
+		// 返回当前处理结果。
 		return err
 	}
+	// 返回当前处理结果。
 	return nil
 }
 
 // tableExists 判断目标表是否存在。
 func tableExists(db *sql.DB, table string) bool {
+	// 声明当前变量。
 	var c int
+	// 判断条件并进入对应分支逻辑。
 	if err := db.QueryRow(`
 SELECT COUNT(1)
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`, table).Scan(&c); err != nil {
+		// 返回当前处理结果。
 		return false
 	}
+	// 返回当前处理结果。
 	return c > 0
 }
 
 // columnExists 判断目标字段是否存在。
 func columnExists(db *sql.DB, table, column string) bool {
+	// 声明当前变量。
 	var c int
+	// 判断条件并进入对应分支逻辑。
 	if err := db.QueryRow(`
 SELECT COUNT(1)
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`, table, column).Scan(&c); err != nil {
+		// 返回当前处理结果。
 		return false
 	}
+	// 返回当前处理结果。
 	return c > 0
 }
 
 // indexExists 判断目标索引是否存在。
 func indexExists(db *sql.DB, table, index string) bool {
+	// 声明当前变量。
 	var c int
+	// 判断条件并进入对应分支逻辑。
 	if err := db.QueryRow(`
 SELECT COUNT(1)
 FROM INFORMATION_SCHEMA.STATISTICS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND INDEX_NAME = ?`, table, index).Scan(&c); err != nil {
+		// 返回当前处理结果。
 		return false
 	}
+	// 返回当前处理结果。
 	return c > 0
 }
 
 // printCount 打印表记录数，便于迁移后核对结果。
 func printCount(db *sql.DB, table string) {
+	// 判断条件并进入对应分支逻辑。
 	if !tableExists(db, table) {
+		// 调用log.Printf完成当前处理。
 		log.Printf("%s not exists", table)
+		// 返回当前处理结果。
 		return
 	}
+	// 声明当前变量。
 	var c int
+	// 判断条件并进入对应分支逻辑。
 	if err := db.QueryRow(fmt.Sprintf("SELECT COUNT(1) FROM %s", table)).Scan(&c); err != nil {
+		// 调用log.Printf完成当前处理。
 		log.Printf("%s count err: %v", table, err)
+		// 返回当前处理结果。
 		return
 	}
+	// 更新当前变量或字段值。
 	log.Printf("%s count=%d", table, c)
 }
 
 // execSQL 统一执行 SQL 并打印受影响行数，方便排错。
 func execSQL(db *sql.DB, label, query string) error {
+	// 定义并初始化当前变量。
 	res, err := db.Exec(query)
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
+		// 返回当前处理结果。
 		return fmt.Errorf("%s: %w", label, err)
 	}
+	// 定义并初始化当前变量。
 	aff, _ := res.RowsAffected()
+	// 更新当前变量或字段值。
 	log.Printf("%s ok, affected=%d", label, aff)
+	// 返回当前处理结果。
 	return nil
 }

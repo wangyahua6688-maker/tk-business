@@ -13,58 +13,93 @@ import (
 func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 	// 1) 读取彩种主配置（包含直播流地址、直播状态、开奖倒计时配置）。
 	sl, err := s.dao.GetSpecialLottery(sid)
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
+		// 返回当前处理结果。
 		return nil, err
 	}
 	// 2) 优先读取当前彩种最新一期开奖记录（开奖区主数据）。
 	//    若开奖区表暂未录数，则回退到 tk_lottery_info，避免首页开奖区整块丢失。
 	current, err := s.dao.GetLatestDrawRecordBySpecialID(sid)
+	// 定义并初始化当前变量。
 	drawRecordID := uint(0)
+	// 定义并初始化当前变量。
 	issue := sl.CurrentIssue
+	// 定义并初始化当前变量。
 	drawAt := ""
+	// 定义并初始化当前变量。
 	playbackURL := ""
+	// 定义并初始化当前变量。
 	numbers := make([]int, 0)
+	// 定义并初始化当前变量。
 	labels := make([]string, 0)
+	// 定义并初始化当前变量。
 	normalNumbers := make([]int, 0)
+	// 定义并初始化当前变量。
 	specialNumber := 0
+	// 判断条件并进入对应分支逻辑。
 	if err == nil {
 		// 2.1) 命中开奖记录时，走开奖区标准字段。
 		drawRecordID = current.ID
+		// 更新当前变量或字段值。
 		issue = current.Issue
+		// 更新当前变量或字段值。
 		drawAt = current.DrawAt.Format("2006/01/02 15:04:05")
+		// 更新当前变量或字段值。
 		playbackURL = current.PlaybackURL
+		// 更新当前变量或字段值。
 		numbers = extractDrawNumbersFromRecord(*current)
+		// 更新当前变量或字段值。
 		labels = extractDrawLabels(*current, numbers)
+		// 更新当前变量或字段值。
 		normalNumbers = splitCSVInts(current.NormalDrawResult)
+		// 定义并初始化当前变量。
 		specialNumbers := splitCSVInts(current.SpecialDrawResult)
+		// 判断条件并进入对应分支逻辑。
 		if len(specialNumbers) > 0 {
+			// 更新当前变量或字段值。
 			specialNumber = specialNumbers[0]
 		}
+		// 进入新的代码块进行处理。
 	} else {
 		// 2.2) 回退到图纸表（兼容旧数据/初始化阶段）。
 		info, infoErr := s.dao.GetLatestLotteryInfoBySpecialID(sid)
+		// 判断条件并进入对应分支逻辑。
 		if infoErr != nil {
+			// 返回当前处理结果。
 			return nil, err
 		}
+		// 更新当前变量或字段值。
 		issue = info.Issue
+		// 更新当前变量或字段值。
 		drawAt = info.DrawAt.Format("2006/01/02 15:04:05")
+		// 更新当前变量或字段值。
 		playbackURL = info.PlaybackURL
+		// 更新当前变量或字段值。
 		numbers = extractDrawNumbers(*info)
+		// 更新当前变量或字段值。
 		labels = buildPairLabels(numbers)
+		// 更新当前变量或字段值。
 		normalNumbers = splitCSVInts(info.NormalDrawResult)
+		// 定义并初始化当前变量。
 		specialNumbers := splitCSVInts(info.SpecialDrawResult)
+		// 判断条件并进入对应分支逻辑。
 		if len(specialNumbers) > 0 {
+			// 更新当前变量或字段值。
 			specialNumber = specialNumbers[0]
 		}
 	}
 
 	// 3) 若彩种主表 current_issue 为空，兜底使用当前开奖号期号。
 	if strings.TrimSpace(issue) == "" {
+		// 更新当前变量或字段值。
 		issue = sl.CurrentIssue
 	}
 	// 4) 计算距下期开奖倒计时，最小值钳制为 0。
 	countdown := int64(sl.NextDrawAt.Sub(time.Now()).Seconds())
+	// 判断条件并进入对应分支逻辑。
 	if countdown < 0 {
+		// 更新当前变量或字段值。
 		countdown = 0
 	}
 
@@ -72,7 +107,9 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 	// - 流地址非空 且（显式启用直播 或 直播状态=live）即展示播放器。
 	// - 避免后台 live_enabled 与 live_status 短暂不一致时整块被隐藏。
 	showByConfig := strings.TrimSpace(sl.LiveStreamURL) != "" && (sl.LiveEnabled == 1 || sl.LiveStatus == "live")
+	// 定义并初始化当前变量。
 	hasLiveData := false
+	// 判断条件并进入对应分支逻辑。
 	if showByConfig {
 		// 异步探测模式下首次请求可能尚未命中缓存；
 		// 为避免首页播放器“完全不显示”，播放器展示由配置开关决定，
@@ -82,36 +119,63 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 
 	// 6) 统一输出首页/现场页开奖看板数据结构。
 	drawResult := joinPaddedInts(numbers)
+	// 判断条件并进入对应分支逻辑。
 	if len(drawResult) == 0 {
+		// 更新当前变量或字段值。
 		drawResult = "--"
 	}
 
+	// 返回当前处理结果。
 	return map[string]interface{}{
+		// 进入新的代码块进行处理。
 		"special_lottery": map[string]interface{}{
-			"id":            sl.ID,
-			"name":          sl.Name,
-			"code":          sl.Code,
+			// 处理当前语句逻辑。
+			"id": sl.ID,
+			// 处理当前语句逻辑。
+			"name": sl.Name,
+			// 处理当前语句逻辑。
+			"code": sl.Code,
+			// 处理当前语句逻辑。
 			"current_issue": issue,
-			"next_draw_at":  sl.NextDrawAt.Format(time.RFC3339),
+			// 调用sl.NextDrawAt.Format完成当前处理。
+			"next_draw_at": sl.NextDrawAt.Format(time.RFC3339),
+			// 处理当前语句逻辑。
 			"countdown_sec": countdown,
 		},
+		// 进入新的代码块进行处理。
 		"live": map[string]interface{}{
+			// 处理当前语句逻辑。
 			"show_player": showByConfig,
-			"has_data":    hasLiveData,
-			"status":      sl.LiveStatus,
-			"stream_url":  sl.LiveStreamURL,
+			// 处理当前语句逻辑。
+			"has_data": hasLiveData,
+			// 处理当前语句逻辑。
+			"status": sl.LiveStatus,
+			// 处理当前语句逻辑。
+			"stream_url": sl.LiveStreamURL,
 		},
+		// 进入新的代码块进行处理。
 		"draw": map[string]interface{}{
-			"draw_record_id":     drawRecordID,
+			// 处理当前语句逻辑。
+			"draw_record_id": drawRecordID,
+			// 处理当前语句逻辑。
 			"special_lottery_id": sid,
-			"issue":              issue,
-			"draw_at":            drawAt,
-			"normal_numbers":     normalNumbers,
-			"special_number":     specialNumber,
-			"draw_result":        drawResult,
-			"playback_url":       playbackURL,
-			"numbers":            numbers,
-			"labels":             labels,
+			// 处理当前语句逻辑。
+			"issue": issue,
+			// 处理当前语句逻辑。
+			"draw_at": drawAt,
+			// 处理当前语句逻辑。
+			"normal_numbers": normalNumbers,
+			// 处理当前语句逻辑。
+			"special_number": specialNumber,
+			// 处理当前语句逻辑。
+			"draw_result": drawResult,
+			// 处理当前语句逻辑。
+			"playback_url": playbackURL,
+			// 处理当前语句逻辑。
+			"numbers": numbers,
+			// 处理当前语句逻辑。
+			"labels": labels,
 		},
+		// 处理当前语句逻辑。
 	}, nil
 }

@@ -15,6 +15,7 @@ func (s *BusinessServer) LiveScenePage(_ context.Context, req *tkv1.IDRequest) (
 	sid := uint(req.GetId())
 	// 2) 调用业务层聚合整页数据。
 	payload, err := s.ctx.LotteryCore.BuildLiveScenePage(sid)
+	// 判断条件并进入对应分支逻辑。
 	if err != nil {
 		// 3) 聚合失败时返回统一业务错误码，便于前端提示。
 		return &tkv1.JsonDataReply{Code: 50061, Msg: "failed to build live scene page"}, nil
