@@ -75,16 +75,14 @@ func (s *Service) BuildLiveScenePage(specialLotteryID uint) (map[string]interfac
 	}
 
 	// 5) 拉取当前彩种历史开奖（主数据来自 tk_draw_record）。
-	historyItems := make([]map[string]interface{}, 0)
-	// 定义并初始化当前变量。
 	history, hisErr := s.BuildDrawHistoryBySpecialID(activeID, "desc", true, 80)
 	// 判断条件并进入对应分支逻辑。
 	if hisErr != nil {
 		// 返回当前处理结果。
 		return nil, hisErr
 	}
-	// 更新当前变量或字段值。
-	historyItems = extractHistoryItems(history)
+	// 定义并初始化当前变量。
+	historyItems := extractHistoryItems(history)
 
 	// 6) 直接返回推荐区块，前端无需再次拼接。
 	recommendBlocks := buildSceneRecommendBlocks(historyItems, sceneCards)

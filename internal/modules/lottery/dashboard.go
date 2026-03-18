@@ -5,6 +5,27 @@ import (
 	"time"
 )
 
+// normalizeNextDrawAt 规范化下一期开奖时间。
+// 规则：
+// 1) 若配置时间已在未来，直接使用；
+// 2) 若配置时间已过期，按“每天同一时刻”顺延到未来最近一次。
+func normalizeNextDrawAt(base time.Time, now time.Time) time.Time {
+	// 判断条件并进入对应分支逻辑。
+	if base.After(now) {
+		// 返回当前处理结果。
+		return base
+	}
+	// 定义并初始化当前变量。
+	next := base
+	// 循环处理当前数据集合。
+	for !next.After(now) {
+		// 更新当前变量或字段值。
+		next = next.Add(24 * time.Hour)
+	}
+	// 返回当前处理结果。
+	return next
+}
+
 // BuildDashboard 生成首页开奖区/开奖现场顶部看板数据。
 // 包含：
 // - 当前彩种期号与倒计时；
@@ -23,18 +44,18 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 	current, err := s.dao.GetLatestDrawRecordBySpecialID(sid)
 	// 定义并初始化当前变量。
 	drawRecordID := uint(0)
-	// 定义并初始化当前变量。
-	issue := sl.CurrentIssue
+	// 声明当前变量。
+	var issue string
 	// 定义并初始化当前变量。
 	drawAt := ""
 	// 定义并初始化当前变量。
 	playbackURL := ""
-	// 定义并初始化当前变量。
-	numbers := make([]int, 0)
-	// 定义并初始化当前变量。
-	labels := make([]string, 0)
-	// 定义并初始化当前变量。
-	normalNumbers := make([]int, 0)
+	// 声明当前变量。
+	var numbers []int
+	// 声明当前变量。
+	var labels []string
+	// 声明当前变量。
+	var normalNumbers []int
 	// 定义并初始化当前变量。
 	specialNumber := 0
 	// 判断条件并进入对应分支逻辑。
@@ -95,14 +116,8 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		// 更新当前变量或字段值。
 		issue = sl.CurrentIssue
 	}
-	// 4) 计算距下期开奖倒计时，最小值钳制为 0。
-	countdown := int64(sl.NextDrawAt.Sub(time.Now()).Seconds())
-	// 判断条件并进入对应分支逻辑。
-	if countdown < 0 {
-		// 更新当前变量或字段值。
-		countdown = 0
-	}
-
+	// 4) 倒计时基准时间兜底：当配置时间已过期时，顺延到未来最近一次（通常为次日同一时刻）。
+	nextDrawAt := normalizeNextDrawAt(sl.NextDrawAt, time.Now())
 	// 5) 播放器显示策略：
 	// - 流地址非空 且（显式启用直播 或 直播状态=live）即展示播放器。
 	// - 避免后台 live_enabled 与 live_status 短暂不一致时整块被隐藏。
@@ -137,10 +152,8 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 			"code": sl.Code,
 			// 处理当前语句逻辑。
 			"current_issue": issue,
-			// 调用sl.NextDrawAt.Format完成当前处理。
-			"next_draw_at": sl.NextDrawAt.Format(time.RFC3339),
-			// 处理当前语句逻辑。
-			"countdown_sec": countdown,
+			// 调用nextDrawAt.Format完成当前处理。
+			"next_draw_at": nextDrawAt.Format(time.RFC3339),
 		},
 		// 进入新的代码块进行处理。
 		"live": map[string]interface{}{
