@@ -15,6 +15,7 @@ import (
 // 2. 页面切换彩种时只需重新请求本接口；
 // 3. 接口内部复用已有开奖看板、历史开奖与图卡能力。
 func (s *Service) BuildLiveScenePage(specialLotteryID uint) (map[string]interface{}, error) {
+	now := lotteryNowInEast8()
 	// 0) 优先读取 Redis 缓存，命中后直接返回整页数据。
 	ctx := context.Background()
 	// 判断条件并进入对应分支逻辑。
@@ -92,9 +93,9 @@ func (s *Service) BuildLiveScenePage(specialLotteryID uint) (map[string]interfac
 		// 处理当前语句逻辑。
 		"scene_title": "开奖现场",
 		// 调用time.Now完成当前处理。
-		"generated_at": time.Now().Format(time.RFC3339),
+		"generated_at": now.Format(time.RFC3339),
 		// 调用buildSceneTabsPayload完成当前处理。
-		"tabs": buildSceneTabsPayload(tabs),
+		"tabs": buildSceneTabsPayload(tabs, now),
 		// 处理当前语句逻辑。
 		"active_tab_id": activeID,
 		// 处理当前语句逻辑。
@@ -135,7 +136,7 @@ func containsSpecialLotteryID(rows []models.WSpecialLottery, id uint) bool {
 }
 
 // buildSceneTabsPayload 构建前端切换标签结构。
-func buildSceneTabsPayload(rows []models.WSpecialLottery) []map[string]interface{} {
+func buildSceneTabsPayload(rows []models.WSpecialLottery, now time.Time) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。
@@ -150,8 +151,8 @@ func buildSceneTabsPayload(rows []models.WSpecialLottery) []map[string]interface
 			"code": row.Code,
 			// 处理当前语句逻辑。
 			"current_issue": row.CurrentIssue,
-			// 调用row.NextDrawAt.Format完成当前处理。
-			"next_draw_at": row.NextDrawAt.Format(time.RFC3339),
+			// 统一按“每天固定开奖时刻”输出最近一次未来时间。
+			"next_draw_at": normalizeNextDrawAt(row.NextDrawAt, now).Format(time.RFC3339),
 		})
 	}
 	// 返回当前处理结果。

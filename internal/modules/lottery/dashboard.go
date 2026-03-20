@@ -7,22 +7,25 @@ import (
 
 // normalizeNextDrawAt 规范化下一期开奖时间。
 // 规则：
-// 1) 若配置时间已在未来，直接使用；
-// 2) 若配置时间已过期，按“每天同一时刻”顺延到未来最近一次。
+// 1) 无论库里存的是哪一天，只取“时分秒”作为每天开奖时刻；
+// 2) 基于 now 计算“下一次”开奖时刻；
+// 3) 若今天该时刻已过，顺延到明天同一时刻。
 func normalizeNextDrawAt(base time.Time, now time.Time) time.Time {
-	// 判断条件并进入对应分支逻辑。
-	if base.After(now) {
-		// 返回当前处理结果。
-		return base
-	}
-	// 定义并初始化当前变量。
-	next := base
-	// 循环处理当前数据集合。
-	for !next.After(now) {
-		// 更新当前变量或字段值。
+	loc := now.Location()
+	hour, minute, second := base.Clock()
+	next := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		hour,
+		minute,
+		second,
+		0,
+		loc,
+	)
+	if !next.After(now) {
 		next = next.Add(24 * time.Hour)
 	}
-	// 返回当前处理结果。
 	return next
 }
 
@@ -117,7 +120,7 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		issue = sl.CurrentIssue
 	}
 	// 4) 倒计时基准时间兜底：当配置时间已过期时，顺延到未来最近一次（通常为次日同一时刻）。
-	nextDrawAt := normalizeNextDrawAt(sl.NextDrawAt, time.Now())
+	nextDrawAt := normalizeNextDrawAt(sl.NextDrawAt, lotteryNowInEast8())
 	// 5) 播放器显示策略：
 	// - 流地址非空 且（显式启用直播 或 直播状态=live）即展示播放器。
 	// - 避免后台 live_enabled 与 live_status 短暂不一致时整块被隐藏。

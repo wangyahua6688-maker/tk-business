@@ -86,10 +86,17 @@ func (d *HomeDAO) ListSpecialLotteries() ([]models.WSpecialLottery, error) {
 
 // ListHomeExternalLinks 查询HomeExternalLinks列表。
 func (d *HomeDAO) ListHomeExternalLinks(limit int) ([]models.WExternalLink, error) {
-	// 仅使用 tk_external_link 作为外链唯一数据源。
+	// 仅使用首页相关位置：
+	// - home/home_external：首页外链按钮；
+	// - home_theme_bg：首页主题背景；
+	// - home_float_left/right：首页左右浮动广告。
 	rows := make([]models.WExternalLink, 0)
 	// 定义并初始化当前变量。
-	q := d.db.Where("status = 1").Order("sort ASC, id DESC")
+	q := d.db.
+		// 更新当前变量或字段值。
+		Where("status = 1 AND position IN ?", []string{"home", "home_external", "home_theme_bg", "home_float_left", "home_float_right"}).
+		// 调用Order完成当前处理。
+		Order("sort ASC, id DESC")
 	// limit > 0 时才截断，limit <= 0 表示不限制。
 	if limit > 0 {
 		// 更新当前变量或字段值。

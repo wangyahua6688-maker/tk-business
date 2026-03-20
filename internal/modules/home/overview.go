@@ -11,7 +11,7 @@ import "time"
 // - 首页可见的彩种分类。
 func (s *Service) BuildOverview() (map[string]interface{}, error) {
 	// 定义并初始化当前变量。
-	now := time.Now()
+	now := homeNowInEast8()
 
 	// 定义并初始化当前变量。
 	banners, err := s.dao.ListHomeBanners()
@@ -181,8 +181,8 @@ func (s *Service) BuildOverview() (map[string]interface{}, error) {
 			"code": t.Code,
 			// 处理当前语句逻辑。
 			"current_issue": t.CurrentIssue,
-			// 调用t.NextDrawAt.Format完成当前处理。
-			"next_draw_at": t.NextDrawAt.Format(time.RFC3339),
+			// 统一按“每天固定开奖时刻”输出最近一次未来时间。
+			"next_draw_at": normalizeHomeNextDrawAt(t.NextDrawAt, now).Format(time.RFC3339),
 		})
 	}
 
@@ -219,4 +219,24 @@ func (s *Service) BuildOverview() (map[string]interface{}, error) {
 		"home_layout_version": "v2",
 		// 处理当前语句逻辑。
 	}, nil
+}
+
+// normalizeHomeNextDrawAt 将配置时间归一化为“未来最近一次每日开奖时刻”。
+func normalizeHomeNextDrawAt(base time.Time, now time.Time) time.Time {
+	loc := now.Location()
+	hour, minute, second := base.Clock()
+	next := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day(),
+		hour,
+		minute,
+		second,
+		0,
+		loc,
+	)
+	if !next.After(now) {
+		next = next.Add(24 * time.Hour)
+	}
+	return next
 }

@@ -3,7 +3,6 @@ package lottery
 import (
 	"fmt"
 	"strings"
-	"time"
 )
 
 // BuildDrawHistoryBySpecialID 生成开奖区“历史开奖”列表数据。
@@ -34,7 +33,7 @@ func (s *Service) BuildDrawHistoryBySpecialID(specialLotteryID uint, orderMode s
 	// 3) 转换前端展示结构。
 	items := make([]map[string]interface{}, 0, len(rows))
 	// 定义并初始化当前变量。
-	historyYear := time.Now().Year()
+	historyYear := lotteryNowInEast8().Year()
 	// 判断条件并进入对应分支逻辑。
 	if len(rows) > 0 {
 		// 更新当前变量或字段值。
