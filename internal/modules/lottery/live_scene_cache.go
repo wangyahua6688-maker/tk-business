@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	redisx "tk-common/utils/redisx/v9"
+	redisx "tk-common/utils/redisx/v8"
 )
 
 // liveSceneCacheKey 构造 scene 缓存键：按彩种 ID 隔离，0 代表默认彩种。

@@ -7,7 +7,7 @@ import (
 	"tk-business/internal/security"
 	"tk-business/internal/userclient"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/redis/v8"
 	"golang.org/x/time/rate"
 )
 
