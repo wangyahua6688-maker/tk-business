@@ -1,15 +1,14 @@
 module tk-business
 
-go 1.24.0
+go 1.24
 
 //replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
 //replace github.com/wangyahua6688-maker/tk-common => ../tk-common
 
-
 require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/redis/go-redis/v9 v9.17.3 // indirect
-	github.com/wangyahua6688-maker/tk-common v1.0.5 // indirect
+	github.com/wangyahua6688-maker/tk-common v1.0.6
 	github.com/wangyahua6688-maker/tk-proto v1.0.2
 	github.com/zeromicro/go-zero v1.10.0
 	golang.org/x/time v0.11.0
@@ -102,4 +101,3 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
-

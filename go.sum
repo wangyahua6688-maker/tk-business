@@ -154,8 +154,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
 github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
-github.com/wangyahua6688-maker/tk-common v1.0.5 h1:SShjHu5t1umQQmktwykTwmHp3nLHQEwEXuG8tPuEckw=
-github.com/wangyahua6688-maker/tk-common v1.0.5/go.mod h1:wvTikMCxOqU7wj0rvzm1YeLbKLk1iuiYZ2O5Wq5Wkcw=
+github.com/wangyahua6688-maker/tk-common v1.0.6 h1:mde1uMhX2GHZDoAUd62Z4CDjXyp0CRnAL94qsaX3feA=
+github.com/wangyahua6688-maker/tk-common v1.0.6/go.mod h1:wtmNUi/0jLQBvizMvm/kVfA84VJ7mXjps7NQgrISXuA=
 github.com/wangyahua6688-maker/tk-proto v1.0.2 h1:n9kyOHxDRNRFuQomTLXbsLRr87Fpyc8VqG+vC0HQTqY=
 github.com/wangyahua6688-maker/tk-proto v1.0.2/go.mod h1:yADURJx9WXi6whT6ojg1SuquywFxDCWz3r2154hKDtE=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
