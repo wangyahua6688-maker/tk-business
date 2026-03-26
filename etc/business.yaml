@@ -2,8 +2,8 @@ Name: tk-business
 ListenOn: 0.0.0.0:9102
 
 Database:
-  DSN: "root:12345678@tcp(mysql:3306)/nb_sys_001?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
-
+#  DSN: "root:12345678@tcp(mysql:3306)/nb_sys_001?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
+  DSN: "tkuser:TkUser_Pass2026!@tcp(mysql:3306)/nb_sys_001?charset=utf8mb4&parseTime=True&loc=Asia%2FShanghai"
 CacheRedis:
   Addr: "redis:6379"
   Password: ""
