@@ -4,7 +4,7 @@ import (
 	"context"
 
 	lotteryModule "tk-business/internal/modules/lottery"
-	tkv1 "tk-proto/tk/v1"
+	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // VoteRecord 查询当前请求端在图纸下的投票状态。

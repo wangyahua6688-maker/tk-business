@@ -6,7 +6,7 @@ import (
 
 	mysqlDriver "github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // HomeDAO 首页数据访问层。
@@ -22,9 +22,9 @@ func NewHomeDAO(db *gorm.DB) *HomeDAO {
 }
 
 // ListHomeBanners 查询HomeBanners列表。
-func (d *HomeDAO) ListHomeBanners() ([]models.WBanner, error) {
+func (d *HomeDAO) ListHomeBanners() ([]common_model.WBanner, error) {
 	// 声明当前变量。
-	var rows []models.WBanner
+	var rows []common_model.WBanner
 	// 定义并初始化当前变量。
 	err := d.db.Where("status = 1 AND (position = ? OR FIND_IN_SET(?, positions) > 0)", "home", "home").
 		// 调用Order完成当前处理。
@@ -34,9 +34,9 @@ func (d *HomeDAO) ListHomeBanners() ([]models.WBanner, error) {
 }
 
 // ListBroadcasts 查询Broadcasts列表。
-func (d *HomeDAO) ListBroadcasts(limit int) ([]models.WBroadcast, error) {
+func (d *HomeDAO) ListBroadcasts(limit int) ([]common_model.WBroadcast, error) {
 	// 声明当前变量。
-	var rows []models.WBroadcast
+	var rows []common_model.WBroadcast
 	// 定义并初始化当前变量。
 	err := d.db.Where("status = 1").Order("sort ASC, id DESC").Limit(limit).Find(&rows).Error
 	// 返回当前处理结果。
@@ -44,9 +44,9 @@ func (d *HomeDAO) ListBroadcasts(limit int) ([]models.WBroadcast, error) {
 }
 
 // GetActiveHomePopup 查询首页首屏弹窗（按排序取第一条生效记录）。
-func (d *HomeDAO) GetActiveHomePopup() (*models.WHomePopup, error) {
+func (d *HomeDAO) GetActiveHomePopup() (*common_model.WHomePopup, error) {
 	// 定义并初始化当前变量。
-	row := models.WHomePopup{}
+	row := common_model.WHomePopup{}
 	// 定义并初始化当前变量。
 	err := d.db.
 		// 更新当前变量或字段值。
@@ -75,9 +75,9 @@ func (d *HomeDAO) GetActiveHomePopup() (*models.WHomePopup, error) {
 }
 
 // ListSpecialLotteries 查询SpecialLotteries列表。
-func (d *HomeDAO) ListSpecialLotteries() ([]models.WSpecialLottery, error) {
+func (d *HomeDAO) ListSpecialLotteries() ([]common_model.WSpecialLottery, error) {
 	// 声明当前变量。
-	var rows []models.WSpecialLottery
+	var rows []common_model.WSpecialLottery
 	// 定义并初始化当前变量。
 	err := d.db.Where("status = 1").Order("sort ASC, id ASC").Find(&rows).Error
 	// 返回当前处理结果。
@@ -85,12 +85,12 @@ func (d *HomeDAO) ListSpecialLotteries() ([]models.WSpecialLottery, error) {
 }
 
 // ListHomeExternalLinks 查询HomeExternalLinks列表。
-func (d *HomeDAO) ListHomeExternalLinks(limit int) ([]models.WExternalLink, error) {
+func (d *HomeDAO) ListHomeExternalLinks(limit int) ([]common_model.WExternalLink, error) {
 	// 仅使用首页相关位置：
 	// - home/home_external：首页外链按钮；
 	// - home_theme_bg：首页主题背景；
 	// - home_float_left/right：首页左右浮动广告。
-	rows := make([]models.WExternalLink, 0)
+	rows := make([]common_model.WExternalLink, 0)
 	// 定义并初始化当前变量。
 	q := d.db.
 		// 更新当前变量或字段值。
@@ -112,9 +112,9 @@ func (d *HomeDAO) ListHomeExternalLinks(limit int) ([]models.WExternalLink, erro
 }
 
 // ListHomeKingKongNav 查询HomeKingKongNav列表。
-func (d *HomeDAO) ListHomeKingKongNav(limit int) ([]models.WExternalLink, error) {
+func (d *HomeDAO) ListHomeKingKongNav(limit int) ([]common_model.WExternalLink, error) {
 	// 声明当前变量。
-	var rows []models.WExternalLink
+	var rows []common_model.WExternalLink
 	// 定义并初始化当前变量。
 	q := d.db.Where("status = 1 AND position IN ?", []string{"home_kingkong", "home_nav"}).
 		// 调用Order完成当前处理。
@@ -131,11 +131,11 @@ func (d *HomeDAO) ListHomeKingKongNav(limit int) ([]models.WExternalLink, error)
 }
 
 // ListLotteryCategories 查询LotteryCategories列表。
-func (d *HomeDAO) ListLotteryCategories(limit int, homeOnly bool) ([]models.WLotteryCategory, error) {
+func (d *HomeDAO) ListLotteryCategories(limit int, homeOnly bool) ([]common_model.WLotteryCategory, error) {
 	// 定义并初始化当前变量。
-	rows := make([]models.WLotteryCategory, 0)
+	rows := make([]common_model.WLotteryCategory, 0)
 	// 定义并初始化当前变量。
-	q := d.db.Model(&models.WLotteryCategory{}).Where("status = 1")
+	q := d.db.Model(&common_model.WLotteryCategory{}).Where("status = 1")
 	// 判断条件并进入对应分支逻辑。
 	if homeOnly {
 		// 更新当前变量或字段值。
@@ -153,18 +153,18 @@ func (d *HomeDAO) ListLotteryCategories(limit int, homeOnly bool) ([]models.WLot
 	// 判断条件并进入对应分支逻辑。
 	if isTableNotExistsError(err) {
 		// 只保留 tk_* 读路径；tk_lottery_category 缺失时返回空，让上层走 tags/titles/default 兜底。
-		return []models.WLotteryCategory{}, nil
+		return []common_model.WLotteryCategory{}, nil
 	}
 	// 返回当前处理结果。
 	return rows, err
 }
 
 // SearchLotteryCategories 处理SearchLotteryCategories相关逻辑。
-func (d *HomeDAO) SearchLotteryCategories(keyword string, limit int) ([]models.WLotteryCategory, error) {
+func (d *HomeDAO) SearchLotteryCategories(keyword string, limit int) ([]common_model.WLotteryCategory, error) {
 	// 定义并初始化当前变量。
-	rows := make([]models.WLotteryCategory, 0)
+	rows := make([]common_model.WLotteryCategory, 0)
 	// 定义并初始化当前变量。
-	q := d.db.Model(&models.WLotteryCategory{}).Where("status = 1")
+	q := d.db.Model(&common_model.WLotteryCategory{}).Where("status = 1")
 	// 判断条件并进入对应分支逻辑。
 	if kw := strings.TrimSpace(keyword); kw != "" {
 		// 定义并初始化当前变量。
@@ -184,7 +184,7 @@ func (d *HomeDAO) SearchLotteryCategories(keyword string, limit int) ([]models.W
 	// 判断条件并进入对应分支逻辑。
 	if isTableNotExistsError(err) {
 		// 只保留 tk_* 读路径；缺表时返回空列表，由上层按默认分类兜底。
-		return []models.WLotteryCategory{}, nil
+		return []common_model.WLotteryCategory{}, nil
 	}
 	// 返回当前处理结果。
 	return rows, err
@@ -196,7 +196,7 @@ func (d *HomeDAO) ListLotteryCategoryTags(limit int) ([]string, error) {
 	// 定义并初始化当前变量。
 	rows := make([]string, 0)
 	// 定义并初始化当前变量。
-	q := d.db.Model(&models.WLotteryInfo{}).
+	q := d.db.Model(&common_model.WLotteryInfo{}).
 		// 更新当前变量或字段值。
 		Where("status = 1 AND category_tag <> ''").
 		// 调用Distinct完成当前处理。
@@ -225,7 +225,7 @@ func (d *HomeDAO) ListLotteryTitles(limit int) ([]string, error) {
 	// 定义并初始化当前变量。
 	rows := make([]string, 0)
 	// 定义并初始化当前变量。
-	q := d.db.Model(&models.WLotteryInfo{}).
+	q := d.db.Model(&common_model.WLotteryInfo{}).
 		// 更新当前变量或字段值。
 		Where("status = 1 AND title <> ''").
 		// 调用Order完成当前处理。

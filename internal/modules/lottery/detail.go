@@ -3,7 +3,7 @@ package lottery
 import (
 	"context"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // BuildDetail 构建彩票详情页数据。
@@ -149,7 +149,7 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 	}
 
 	// 11) 优先读取后台配置的推荐图纸 IDs。
-	recommendInfos := make([]models.WLotteryInfo, 0)
+	recommendInfos := make([]common_model.WLotteryInfo, 0)
 	// 定义并初始化当前变量。
 	recommendIDs := parseCSVUintIDs(current.RecommendInfoIDs)
 	// 判断条件并进入对应分支逻辑。

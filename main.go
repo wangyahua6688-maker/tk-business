@@ -11,7 +11,7 @@ import (
 	"tk-business/internal/config"
 	"tk-business/internal/server"
 	"tk-business/internal/svc"
-	tkv1 "tk-proto/tk/v1"
+	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // main 启动程序入口。

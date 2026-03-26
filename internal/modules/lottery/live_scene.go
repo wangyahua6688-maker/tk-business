@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // BuildLiveScenePage 构建“开奖现场”整页数据。
@@ -122,7 +122,7 @@ func (s *Service) BuildLiveScenePage(specialLotteryID uint) (map[string]interfac
 }
 
 // containsSpecialLotteryID 判断彩种 ID 是否存在于切换标签内。
-func containsSpecialLotteryID(rows []models.WSpecialLottery, id uint) bool {
+func containsSpecialLotteryID(rows []common_model.WSpecialLottery, id uint) bool {
 	// 循环处理当前数据集合。
 	for _, row := range rows {
 		// 判断条件并进入对应分支逻辑。
@@ -136,7 +136,7 @@ func containsSpecialLotteryID(rows []models.WSpecialLottery, id uint) bool {
 }
 
 // buildSceneTabsPayload 构建前端切换标签结构。
-func buildSceneTabsPayload(rows []models.WSpecialLottery, now time.Time) []map[string]interface{} {
+func buildSceneTabsPayload(rows []common_model.WSpecialLottery, now time.Time) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。

@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	tkv1 "tk-proto/tk/v1"
+	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // HomeOverview 首页聚合接口（使用带 Redis 缓存版本）。

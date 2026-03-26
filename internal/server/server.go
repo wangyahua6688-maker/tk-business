@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"tk-business/internal/svc"
-	tkv1 "tk-proto/tk/v1"
+	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // BusinessServer 业务域 gRPC 服务实现。

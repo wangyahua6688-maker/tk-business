@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 
 	"gorm.io/gorm"
 )
@@ -61,7 +61,7 @@ func (s *Service) Vote(infoID, optionID uint, meta VoteMeta) (map[string]interfa
 	// 5) 事务写入：插入投票记录 + 选项票数自增。
 	err = s.dao.WithTx(func(tx *gorm.DB) error {
 		// 定义并初始化当前变量。
-		record := &models.WLotteryVoteRecord{
+		record := &common_model.WLotteryVoteRecord{
 			// 处理当前语句逻辑。
 			LotteryInfoID: infoID,
 			// 处理当前语句逻辑。
@@ -81,7 +81,7 @@ func (s *Service) Vote(infoID, optionID uint, meta VoteMeta) (map[string]interfa
 			return err
 		}
 		// 判断条件并进入对应分支逻辑。
-		if err := tx.Model(&models.WLotteryOption{}).
+		if err := tx.Model(&common_model.WLotteryOption{}).
 			// 更新当前变量或字段值。
 			Where("id = ?", optionID).
 			// 调用UpdateColumn完成当前处理。

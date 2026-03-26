@@ -3,13 +3,13 @@ package dao
 import (
 	"strings"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // GetLatestDrawRecordBySpecialID 查询指定彩种最新一期开奖记录。
-func (d *LotteryDAO) GetLatestDrawRecordBySpecialID(sid uint) (*models.WDrawRecord, error) {
+func (d *LotteryDAO) GetLatestDrawRecordBySpecialID(sid uint) (*common_model.WDrawRecord, error) {
 	// 声明当前变量。
-	var row models.WDrawRecord
+	var row common_model.WDrawRecord
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("special_lottery_id = ? AND status = 1", sid).
 		// 调用Order完成当前处理。
@@ -24,9 +24,9 @@ func (d *LotteryDAO) GetLatestDrawRecordBySpecialID(sid uint) (*models.WDrawReco
 }
 
 // ListDrawRecordsBySpecialID 查询彩种历史开奖记录。
-func (d *LotteryDAO) ListDrawRecordsBySpecialID(sid uint, limit int, orderMode string) ([]models.WDrawRecord, error) {
+func (d *LotteryDAO) ListDrawRecordsBySpecialID(sid uint, limit int, orderMode string) ([]common_model.WDrawRecord, error) {
 	// 定义并初始化当前变量。
-	rows := make([]models.WDrawRecord, 0)
+	rows := make([]common_model.WDrawRecord, 0)
 	// 定义并初始化当前变量。
 	q := d.db.Where("status = 1")
 	// 判断条件并进入对应分支逻辑。
@@ -58,9 +58,9 @@ func (d *LotteryDAO) ListDrawRecordsBySpecialID(sid uint, limit int, orderMode s
 }
 
 // GetDrawRecord 查询单条开奖记录。
-func (d *LotteryDAO) GetDrawRecord(id uint) (*models.WDrawRecord, error) {
+func (d *LotteryDAO) GetDrawRecord(id uint) (*common_model.WDrawRecord, error) {
 	// 声明当前变量。
-	var row models.WDrawRecord
+	var row common_model.WDrawRecord
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
 		// 返回当前处理结果。

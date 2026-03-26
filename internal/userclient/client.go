@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/zeromicro/go-zero/zrpc"
-	tkv1 "tk-proto/tk/v1"
+	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // LotteryCommentGroups 对应彩种详情页需要的四组评论数据。

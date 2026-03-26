@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // activeInTimeRange 判断配置对象是否处于生效时间窗口内。
@@ -24,7 +24,7 @@ func activeInTimeRange(now time.Time, startAt *time.Time, endAt *time.Time) bool
 }
 
 // buildHomeLinksPayload 将外链模型转换为前端结构。
-func buildHomeLinksPayload(rows []models.WExternalLink) []map[string]interface{} {
+func buildHomeLinksPayload(rows []common_model.WExternalLink) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。
@@ -49,7 +49,7 @@ func buildHomeLinksPayload(rows []models.WExternalLink) []map[string]interface{}
 
 // buildKingKongPayload 只保留“开奖现场”导航入口。
 // 若后台未配置则回退到默认入口，确保前端页面可用。
-func buildKingKongPayload(rows []models.WExternalLink) []map[string]interface{} {
+func buildKingKongPayload(rows []common_model.WExternalLink) []map[string]interface{} {
 	// 判断条件并进入对应分支逻辑。
 	if len(rows) == 0 {
 		// 返回当前处理结果。
@@ -107,7 +107,7 @@ func buildKingKongPayload(rows []models.WExternalLink) []map[string]interface{} 
 }
 
 // buildCategoryPayload 分类模型 -> 前端分类展示结构。
-func buildCategoryPayload(rows []models.WLotteryCategory) []map[string]interface{} {
+func buildCategoryPayload(rows []common_model.WLotteryCategory) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。
@@ -136,7 +136,7 @@ func buildCategoryPayload(rows []models.WLotteryCategory) []map[string]interface
 }
 
 // pickDefaultCategory 选择首页默认激活分类。
-func pickDefaultCategory(rows []models.WLotteryCategory) string {
+func pickDefaultCategory(rows []common_model.WLotteryCategory) string {
 	// 循环处理当前数据集合。
 	for _, item := range rows {
 		// 定义并初始化当前变量。
@@ -152,9 +152,9 @@ func pickDefaultCategory(rows []models.WLotteryCategory) string {
 }
 
 // tagsToCategories 将开奖标签列表映射为分类结构（降级路径）。
-func tagsToCategories(tags []string, homeOnly bool) []models.WLotteryCategory {
+func tagsToCategories(tags []string, homeOnly bool) []common_model.WLotteryCategory {
 	// 定义并初始化当前变量。
-	out := make([]models.WLotteryCategory, 0, len(tags))
+	out := make([]common_model.WLotteryCategory, 0, len(tags))
 	// 循环处理当前数据集合。
 	for idx, tag := range tags {
 		// 定义并初始化当前变量。
@@ -172,7 +172,7 @@ func tagsToCategories(tags []string, homeOnly bool) []models.WLotteryCategory {
 			showOnHome = 1
 		}
 		// 更新当前变量或字段值。
-		out = append(out, models.WLotteryCategory{
+		out = append(out, common_model.WLotteryCategory{
 			// 处理当前语句逻辑。
 			CategoryKey: name,
 			// 处理当前语句逻辑。
@@ -190,9 +190,9 @@ func tagsToCategories(tags []string, homeOnly bool) []models.WLotteryCategory {
 }
 
 // titlesToCategories 将图纸标题映射为分类结构（兜底路径）。
-func titlesToCategories(titles []string, homeOnly bool) []models.WLotteryCategory {
+func titlesToCategories(titles []string, homeOnly bool) []common_model.WLotteryCategory {
 	// 定义并初始化当前变量。
-	out := make([]models.WLotteryCategory, 0, len(titles))
+	out := make([]common_model.WLotteryCategory, 0, len(titles))
 	// 循环处理当前数据集合。
 	for idx, title := range titles {
 		// 定义并初始化当前变量。
@@ -210,7 +210,7 @@ func titlesToCategories(titles []string, homeOnly bool) []models.WLotteryCategor
 			showOnHome = 1
 		}
 		// 更新当前变量或字段值。
-		out = append(out, models.WLotteryCategory{
+		out = append(out, common_model.WLotteryCategory{
 			// 处理当前语句逻辑。
 			CategoryKey: name,
 			// 处理当前语句逻辑。
@@ -228,15 +228,15 @@ func titlesToCategories(titles []string, homeOnly bool) []models.WLotteryCategor
 }
 
 // defaultHomeCategories 首页分类硬编码兜底（数据库未初始化时仍保证可展示）。
-func defaultHomeCategories() []models.WLotteryCategory {
+func defaultHomeCategories() []common_model.WLotteryCategory {
 	// 定义并初始化当前变量。
 	names := []string{"九肖系列", "内幕系列", "四不像系列", "跑狗图系列", "挂牌系列", "更多"}
 	// 定义并初始化当前变量。
-	out := make([]models.WLotteryCategory, 0, len(names))
+	out := make([]common_model.WLotteryCategory, 0, len(names))
 	// 循环处理当前数据集合。
 	for idx, name := range names {
 		// 更新当前变量或字段值。
-		out = append(out, models.WLotteryCategory{
+		out = append(out, common_model.WLotteryCategory{
 			// 处理当前语句逻辑。
 			CategoryKey: name,
 			// 处理当前语句逻辑。

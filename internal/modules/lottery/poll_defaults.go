@@ -1,6 +1,6 @@
 package lottery
 
-import "tk-common/models"
+import common_model "tk-common/models"
 
 // defaultPollOptionNames 返回系统默认的生肖投票项。
 // 说明：
@@ -16,7 +16,7 @@ func defaultPollOptionNames() []string {
 // 1) 先查现有选项；
 // 2) 若为空，自动补默认 12 生肖；
 // 3) 再次读取并返回。
-func (s *Service) ensurePollOptions(infoID uint) ([]models.WLotteryOption, error) {
+func (s *Service) ensurePollOptions(infoID uint) ([]common_model.WLotteryOption, error) {
 	// 定义并初始化当前变量。
 	options, err := s.dao.ListOptionsByLotteryInfoID(infoID)
 	// 判断条件并进入对应分支逻辑。

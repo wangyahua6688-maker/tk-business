@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 )
 
 // splitCSVInts 将逗号分隔号码字符串转为整型数组。
@@ -31,7 +31,7 @@ func splitCSVInts(raw string) []int {
 }
 
 // extractDrawNumbers 优先使用“普通号+特别号”字段，回退到兼容字段 draw_result。
-func extractDrawNumbers(info models.WLotteryInfo) []int {
+func extractDrawNumbers(info common_model.WLotteryInfo) []int {
 	// 定义并初始化当前变量。
 	normal := splitCSVInts(info.NormalDrawResult)
 	// 定义并初始化当前变量。
@@ -46,7 +46,7 @@ func extractDrawNumbers(info models.WLotteryInfo) []int {
 }
 
 // extractDrawNumbersFromRecord 从开奖记录提取 6+1 开奖号码。
-func extractDrawNumbersFromRecord(record models.WDrawRecord) []int {
+func extractDrawNumbersFromRecord(record common_model.WDrawRecord) []int {
 	// 定义并初始化当前变量。
 	normal := splitCSVInts(record.NormalDrawResult)
 	// 定义并初始化当前变量。
@@ -76,7 +76,7 @@ func buildSimpleLabels(numbers []int) []string {
 }
 
 // extractDrawLabels 优先读取开奖记录标签；标签缺失时自动生成“生肖/五行”占位标签。
-func extractDrawLabels(record models.WDrawRecord, numbers []int) []string {
+func extractDrawLabels(record common_model.WDrawRecord, numbers []int) []string {
 	// 定义并初始化当前变量。
 	labels := splitCSVLabels(record.DrawLabels)
 	// 判断条件并进入对应分支逻辑。
@@ -89,7 +89,7 @@ func extractDrawLabels(record models.WDrawRecord, numbers []int) []string {
 }
 
 // extractZodiacAndWuxingLabels 提取“属相/五行”两组标签。
-func extractZodiacAndWuxingLabels(record models.WDrawRecord, numbers []int) ([]string, []string) {
+func extractZodiacAndWuxingLabels(record common_model.WDrawRecord, numbers []int) ([]string, []string) {
 	// 1) 优先使用独立字段，避免前端每次拆分“属相/五行”组合串。
 	zodiac := splitCSVLabels(record.ZodiacLabels)
 	// 定义并初始化当前变量。
@@ -206,7 +206,7 @@ func sortYearsDesc(years []int) {
 }
 
 // buildPollPayload 计算投票百分比并输出投票列表结构。
-func buildPollPayload(options []models.WLotteryOption, totalVotes int64) []map[string]interface{} {
+func buildPollPayload(options []common_model.WLotteryOption, totalVotes int64) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	poll := make([]map[string]interface{}, 0, len(options))
 	// 循环处理当前数据集合。
@@ -268,9 +268,9 @@ func parseCSVUintIDs(raw string) []uint {
 }
 
 // reorderInfosByIDs 按配置 ID 顺序重排推荐图纸，并过滤当前图纸自身。
-func reorderInfosByIDs(rows []models.WLotteryInfo, orderedIDs []uint, currentID uint) []models.WLotteryInfo {
+func reorderInfosByIDs(rows []common_model.WLotteryInfo, orderedIDs []uint, currentID uint) []common_model.WLotteryInfo {
 	// 定义并初始化当前变量。
-	rowMap := make(map[uint]models.WLotteryInfo, len(rows))
+	rowMap := make(map[uint]common_model.WLotteryInfo, len(rows))
 	// 循环处理当前数据集合。
 	for _, row := range rows {
 		// 判断条件并进入对应分支逻辑。
@@ -282,7 +282,7 @@ func reorderInfosByIDs(rows []models.WLotteryInfo, orderedIDs []uint, currentID 
 		rowMap[row.ID] = row
 	}
 	// 定义并初始化当前变量。
-	out := make([]models.WLotteryInfo, 0, len(rows))
+	out := make([]common_model.WLotteryInfo, 0, len(rows))
 	// 循环处理当前数据集合。
 	for _, id := range orderedIDs {
 		// 判断条件并进入对应分支逻辑。
@@ -298,7 +298,7 @@ func reorderInfosByIDs(rows []models.WLotteryInfo, orderedIDs []uint, currentID 
 }
 
 // buildRecommendPayload 组装推荐图纸返回结构。
-func buildRecommendPayload(rows []models.WLotteryInfo) []map[string]interface{} {
+func buildRecommendPayload(rows []common_model.WLotteryInfo) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。
@@ -320,7 +320,7 @@ func buildRecommendPayload(rows []models.WLotteryInfo) []map[string]interface{} 
 }
 
 // buildExternalLinkPayload 组装详情页外链列表结构。
-func buildExternalLinkPayload(rows []models.WExternalLink) []map[string]interface{} {
+func buildExternalLinkPayload(rows []common_model.WExternalLink) []map[string]interface{} {
 	// 定义并初始化当前变量。
 	out := make([]map[string]interface{}, 0, len(rows))
 	// 循环处理当前数据集合。

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"tk-common/models"
+	common_model "tk-common/models"
 
 	"gorm.io/gorm"
 )
@@ -46,9 +46,9 @@ func NewLotteryDAO(db *gorm.DB) *LotteryDAO {
 }
 
 // ListSpecialLotteries 返回首页/开奖现场需要的彩种切换标签。
-func (d *LotteryDAO) ListSpecialLotteries(limit int) ([]models.WSpecialLottery, error) {
+func (d *LotteryDAO) ListSpecialLotteries(limit int) ([]common_model.WSpecialLottery, error) {
 	// 定义并初始化当前变量。
-	rows := make([]models.WSpecialLottery, 0)
+	rows := make([]common_model.WSpecialLottery, 0)
 	// 定义并初始化当前变量。
 	q := d.db.Where("status = 1").Order("sort ASC, id ASC")
 	// 判断条件并进入对应分支逻辑。
@@ -63,9 +63,9 @@ func (d *LotteryDAO) ListSpecialLotteries(limit int) ([]models.WSpecialLottery, 
 }
 
 // GetSpecialLottery 获取SpecialLottery。
-func (d *LotteryDAO) GetSpecialLottery(id uint) (*models.WSpecialLottery, error) {
+func (d *LotteryDAO) GetSpecialLottery(id uint) (*common_model.WSpecialLottery, error) {
 	// 声明当前变量。
-	var row models.WSpecialLottery
+	var row common_model.WSpecialLottery
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
 		// 返回当前处理结果。
@@ -76,9 +76,9 @@ func (d *LotteryDAO) GetSpecialLottery(id uint) (*models.WSpecialLottery, error)
 }
 
 // GetLatestLotteryInfoBySpecialID 获取LatestLotteryInfoBySpecialID。
-func (d *LotteryDAO) GetLatestLotteryInfoBySpecialID(sid uint) (*models.WLotteryInfo, error) {
+func (d *LotteryDAO) GetLatestLotteryInfoBySpecialID(sid uint) (*common_model.WLotteryInfo, error) {
 	// 声明当前变量。
-	var row models.WLotteryInfo
+	var row common_model.WLotteryInfo
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("special_lottery_id = ? AND status = 1", sid).
 		// 调用Order完成当前处理。
@@ -91,9 +91,9 @@ func (d *LotteryDAO) GetLatestLotteryInfoBySpecialID(sid uint) (*models.WLottery
 }
 
 // ListCards 查询Cards列表。
-func (d *LotteryDAO) ListCards(category string, limit int) ([]models.WLotteryInfo, error) {
+func (d *LotteryDAO) ListCards(category string, limit int) ([]common_model.WLotteryInfo, error) {
 	// 声明当前变量。
-	var rows []models.WLotteryInfo
+	var rows []common_model.WLotteryInfo
 	// 1) 标准化分类参数，避免前后端传参带空格导致误筛选。
 	category = strings.TrimSpace(category)
 	// 定义并初始化当前变量。
@@ -101,7 +101,7 @@ func (d *LotteryDAO) ListCards(category string, limit int) ([]models.WLotteryInf
 	// 判断条件并进入对应分支逻辑。
 	if category != "" {
 		// 2) 优先读取分类配置，拿到 category_key 对应的 name，扩大命中范围。
-		var cfg models.WLotteryCategory
+		var cfg common_model.WLotteryCategory
 		// 判断条件并进入对应分支逻辑。
 		if err := d.db.Select("category_key", "name").Where("status = 1 AND category_key = ?", category).First(&cfg).Error; err == nil {
 			// 定义并初始化当前变量。
@@ -165,9 +165,9 @@ func (d *LotteryDAO) ListCards(category string, limit int) ([]models.WLotteryInf
 }
 
 // GetLotteryInfo 获取LotteryInfo。
-func (d *LotteryDAO) GetLotteryInfo(id uint) (*models.WLotteryInfo, error) {
+func (d *LotteryDAO) GetLotteryInfo(id uint) (*common_model.WLotteryInfo, error) {
 	// 声明当前变量。
-	var row models.WLotteryInfo
+	var row common_model.WLotteryInfo
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
 		// 返回当前处理结果。
@@ -178,9 +178,9 @@ func (d *LotteryDAO) GetLotteryInfo(id uint) (*models.WLotteryInfo, error) {
 }
 
 // ListLotteryInfosBySpecialID 查询LotteryInfosBySpecialID列表。
-func (d *LotteryDAO) ListLotteryInfosBySpecialID(sid uint, limit int) ([]models.WLotteryInfo, error) {
+func (d *LotteryDAO) ListLotteryInfosBySpecialID(sid uint, limit int) ([]common_model.WLotteryInfo, error) {
 	// 声明当前变量。
-	var rows []models.WLotteryInfo
+	var rows []common_model.WLotteryInfo
 	// 定义并初始化当前变量。
 	err := d.db.Where("special_lottery_id = ? AND status = 1", sid).
 		// 调用Order完成当前处理。
@@ -190,9 +190,9 @@ func (d *LotteryDAO) ListLotteryInfosBySpecialID(sid uint, limit int) ([]models.
 }
 
 // ListOptionsByLotteryInfoID 查询OptionsByLotteryInfoID列表。
-func (d *LotteryDAO) ListOptionsByLotteryInfoID(infoID uint) ([]models.WLotteryOption, error) {
+func (d *LotteryDAO) ListOptionsByLotteryInfoID(infoID uint) ([]common_model.WLotteryOption, error) {
 	// 声明当前变量。
-	var rows []models.WLotteryOption
+	var rows []common_model.WLotteryOption
 	// 定义并初始化当前变量。
 	err := d.db.Where("lottery_info_id = ?", infoID).Order("sort ASC, id ASC").Find(&rows).Error
 	// 返回当前处理结果。
@@ -211,7 +211,7 @@ func (d *LotteryDAO) CreateMissingOptions(infoID uint, names []string) error {
 	}
 
 	// 1) 先读取已有选项名，构建存在集合。
-	existingRows := make([]models.WLotteryOption, 0)
+	existingRows := make([]common_model.WLotteryOption, 0)
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Select("option_name").Where("lottery_info_id = ?", infoID).Find(&existingRows).Error; err != nil {
 		// 返回当前处理结果。
@@ -233,7 +233,7 @@ func (d *LotteryDAO) CreateMissingOptions(infoID uint, names []string) error {
 	}
 
 	// 2) 仅收集缺失项。
-	toCreate := make([]models.WLotteryOption, 0, len(names))
+	toCreate := make([]common_model.WLotteryOption, 0, len(names))
 	// 循环处理当前数据集合。
 	for idx, raw := range names {
 		// 定义并初始化当前变量。
@@ -249,7 +249,7 @@ func (d *LotteryDAO) CreateMissingOptions(infoID uint, names []string) error {
 			continue
 		}
 		// 更新当前变量或字段值。
-		toCreate = append(toCreate, models.WLotteryOption{
+		toCreate = append(toCreate, common_model.WLotteryOption{
 			// 处理当前语句逻辑。
 			LotteryInfoID: infoID,
 			// 处理当前语句逻辑。
@@ -271,9 +271,9 @@ func (d *LotteryDAO) CreateMissingOptions(infoID uint, names []string) error {
 }
 
 // ListDetailBanners 查询DetailBanners列表。
-func (d *LotteryDAO) ListDetailBanners() ([]models.WBanner, error) {
+func (d *LotteryDAO) ListDetailBanners() ([]common_model.WBanner, error) {
 	// 声明当前变量。
-	var rows []models.WBanner
+	var rows []common_model.WBanner
 	// 定义并初始化当前变量。
 	err := d.db.Where("status = 1 AND (position = ? OR FIND_IN_SET(?, positions) > 0)", "lottery_detail", "lottery_detail").
 		// 调用Order完成当前处理。
@@ -283,9 +283,9 @@ func (d *LotteryDAO) ListDetailBanners() ([]models.WBanner, error) {
 }
 
 // ListExternalLinks 查询ExternalLinks列表。
-func (d *LotteryDAO) ListExternalLinks(position string, limit int) ([]models.WExternalLink, error) {
+func (d *LotteryDAO) ListExternalLinks(position string, limit int) ([]common_model.WExternalLink, error) {
 	// 声明当前变量。
-	var rows []models.WExternalLink
+	var rows []common_model.WExternalLink
 	// 定义并初始化当前变量。
 	q := d.db.Where("status = 1 AND position = ?", position).Order("sort ASC, id DESC")
 	// 判断条件并进入对应分支逻辑。
@@ -300,14 +300,14 @@ func (d *LotteryDAO) ListExternalLinks(position string, limit int) ([]models.WEx
 }
 
 // ListLotteryInfosByIDs 查询LotteryInfosByIDs列表。
-func (d *LotteryDAO) ListLotteryInfosByIDs(ids []uint) ([]models.WLotteryInfo, error) {
+func (d *LotteryDAO) ListLotteryInfosByIDs(ids []uint) ([]common_model.WLotteryInfo, error) {
 	// 判断条件并进入对应分支逻辑。
 	if len(ids) == 0 {
 		// 返回当前处理结果。
-		return []models.WLotteryInfo{}, nil
+		return []common_model.WLotteryInfo{}, nil
 	}
 	// 声明当前变量。
-	var rows []models.WLotteryInfo
+	var rows []common_model.WLotteryInfo
 	// 定义并初始化当前变量。
 	err := d.db.Where("id IN ? AND status = 1", ids).Find(&rows).Error
 	// 返回当前处理结果。
@@ -315,9 +315,9 @@ func (d *LotteryDAO) ListLotteryInfosByIDs(ids []uint) ([]models.WLotteryInfo, e
 }
 
 // ListRecommendFallback 查询RecommendFallback列表。
-func (d *LotteryDAO) ListRecommendFallback(sid, currentID uint, limit int) ([]models.WLotteryInfo, error) {
+func (d *LotteryDAO) ListRecommendFallback(sid, currentID uint, limit int) ([]common_model.WLotteryInfo, error) {
 	// 声明当前变量。
-	var rows []models.WLotteryInfo
+	var rows []common_model.WLotteryInfo
 	// 定义并初始化当前变量。
 	err := d.db.Where("status = 1 AND special_lottery_id = ? AND id <> ?", sid, currentID).
 		// 调用Order完成当前处理。
@@ -368,9 +368,9 @@ func (d *LotteryDAO) ListLotteryComments(infoID uint, limit int, orderBy string,
 }
 
 // FindOption 查找Option。
-func (d *LotteryDAO) FindOption(optionID uint) (*models.WLotteryOption, error) {
+func (d *LotteryDAO) FindOption(optionID uint) (*common_model.WLotteryOption, error) {
 	// 声明当前变量。
-	var row models.WLotteryOption
+	var row common_model.WLotteryOption
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.First(&row, optionID).Error; err != nil {
 		// 返回当前处理结果。
@@ -381,9 +381,9 @@ func (d *LotteryDAO) FindOption(optionID uint) (*models.WLotteryOption, error) {
 }
 
 // GetVoteRecord 获取VoteRecord。
-func (d *LotteryDAO) GetVoteRecord(infoID uint, voterHash string) (*models.WLotteryVoteRecord, error) {
+func (d *LotteryDAO) GetVoteRecord(infoID uint, voterHash string) (*common_model.WLotteryVoteRecord, error) {
 	// 声明当前变量。
-	var row models.WLotteryVoteRecord
+	var row common_model.WLotteryVoteRecord
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("lottery_info_id = ? AND voter_hash = ?", infoID, voterHash).First(&row).Error; err != nil {
 		// 返回当前处理结果。
