@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	commonhttpx "tk-common/utils/httpx"
+	commonhttpx "github.com/wangyahua6688-maker/tk-common/utils/httpx"
 )
 
 // 定义当前类型结构。

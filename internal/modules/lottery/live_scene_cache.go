@@ -3,8 +3,8 @@ package lottery
 import (
 	"context"
 	"fmt"
+	redisx "github.com/wangyahua6688-maker/tk-common/utils/redisx/v8"
 	"time"
-	redisx "tk-common/utils/redisx/v8"
 )
 
 // liveSceneCacheKey 构造 scene 缓存键：按彩种 ID 隔离，0 代表默认彩种。

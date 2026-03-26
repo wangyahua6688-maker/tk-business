@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	common_model "tk-common/models"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 )
 
 // activeInTimeRange 判断配置对象是否处于生效时间窗口内。

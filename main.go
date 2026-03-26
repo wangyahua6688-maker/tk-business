@@ -4,14 +4,15 @@ import (
 	"flag"
 	"fmt"
 
+	"tk-business/internal/config"
+	"tk-business/internal/server"
+	"tk-business/internal/svc"
+
+	tkv1 "github.com/wangyahua6688-maker/tk-proto/gen/go/tk/v1"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
-	"tk-business/internal/config"
-	"tk-business/internal/server"
-	"tk-business/internal/svc"
-	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // main 启动程序入口。

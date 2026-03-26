@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	common_model "tk-common/models"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 )
 
 // BuildLiveScenePage 构建“开奖现场”整页数据。

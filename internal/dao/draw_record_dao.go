@@ -3,7 +3,7 @@ package dao
 import (
 	"strings"
 
-	common_model "tk-common/models"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 )
 
 // GetLatestDrawRecordBySpecialID 查询指定彩种最新一期开奖记录。

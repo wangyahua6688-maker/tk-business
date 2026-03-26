@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	tkv1 "tk-proto/gen/go/tk/v1"
+	tkv1 "github.com/wangyahua6688-maker/tk-proto/gen/go/tk/v1"
 )
 
 // LotteryDashboard 返回开奖看板数据（使用带缓存版本，防止高峰期缓存击穿）。

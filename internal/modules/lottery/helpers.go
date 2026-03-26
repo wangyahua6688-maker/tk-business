@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	common_model "tk-common/models"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 )
 
 // splitCSVInts 将逗号分隔号码字符串转为整型数组。

@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
+	redisx "github.com/wangyahua6688-maker/tk-common/utils/redisx/v8"
 	"tk-business/internal/config"
 	"tk-business/internal/dao"
 	homeModule "tk-business/internal/modules/home"
 	lotteryModule "tk-business/internal/modules/lottery"
 	"tk-business/internal/platform/database"
 	"tk-business/internal/userclient"
-	redisx "tk-common/utils/redisx/v8"
 
 	"github.com/go-redis/redis/v8"
 )

@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	tkv1 "tk-proto/gen/go/tk/v1"
+	tkv1 "github.com/wangyahua6688-maker/tk-proto/gen/go/tk/v1"
 )
 
 // LiveScenePage 返回“开奖现场”整页所需数据。

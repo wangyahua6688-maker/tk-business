@@ -6,10 +6,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/wangyahua6688-maker/tk-common/utils/logx"
+	"github.com/wangyahua6688-maker/tk-common/utils/redisx/cmdx"
+	redisx "github.com/wangyahua6688-maker/tk-common/utils/redisx/v8"
 	"tk-business/internal/constants/rediskey"
-	"tk-common/utils/logx"
-	"tk-common/utils/redisx/cmdx"
-	redisx "tk-common/utils/redisx/v8"
 )
 
 // BuildDashboardWithCache 读取开奖看板数据，优先从 Redis 缓存返回。

@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	mysqlDriver "github.com/go-sql-driver/mysql"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 	"gorm.io/gorm"
-	common_model "tk-common/models"
 )
 
 // HomeDAO 首页数据访问层。

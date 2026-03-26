@@ -8,9 +8,10 @@ import (
 	"errors"
 	"time"
 	"tk-business/internal/constants/rediskey"
-	"tk-common/utils/logx"
-	"tk-common/utils/redisx/cmdx"
-	redisx "tk-common/utils/redisx/v8"
+
+	"github.com/wangyahua6688-maker/tk-common/utils/logx"
+	"github.com/wangyahua6688-maker/tk-common/utils/redisx/cmdx"
+	redisx "github.com/wangyahua6688-maker/tk-common/utils/redisx/v8"
 
 	"github.com/go-redis/redis/v8"
 )

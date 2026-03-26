@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 
+	tkv1 "github.com/wangyahua6688-maker/tk-proto/gen/go/tk/v1"
 	lotteryModule "tk-business/internal/modules/lottery"
-	tkv1 "tk-proto/gen/go/tk/v1"
 )
 
 // VoteRecord 查询当前请求端在图纸下的投票状态。

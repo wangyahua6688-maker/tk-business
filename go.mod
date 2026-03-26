@@ -2,18 +2,20 @@ module tk-business
 
 go 1.24.0
 
+//replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
+//replace github.com/wangyahua6688-maker/tk-common => ../tk-common
+
+
 require (
+	github.com/go-redis/redis/v8 v8.11.5
+	github.com/redis/go-redis/v9 v9.17.3 // indirect
+	github.com/wangyahua6688-maker/tk-common v1.0.5 // indirect
+	github.com/wangyahua6688-maker/tk-proto v1.0.2
 	github.com/zeromicro/go-zero v1.10.0
 	golang.org/x/time v0.11.0
 	google.golang.org/grpc v1.65.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.31.0
-	tk-proto v0.0.0
-)
-
-require (
-	github.com/go-redis/redis/v8 v8.11.5
-	github.com/redis/go-redis/v9 v9.17.3 // indirect
 )
 
 require (
@@ -99,9 +101,5 @@ require (
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
-	tk-common v0.0.0
 )
 
-replace tk-proto => ../tk-proto
-
-replace tk-common => ../tk-common

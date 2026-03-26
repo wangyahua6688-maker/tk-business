@@ -3,7 +3,7 @@ package lottery
 import (
 	"context"
 
-	common_model "tk-common/models"
+	common_model "github.com/wangyahua6688-maker/tk-common/models"
 )
 
 // BuildDetail 构建彩票详情页数据。
