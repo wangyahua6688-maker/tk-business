@@ -9,7 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/redis/go-redis/v9 v9.17.3 // indirect; indiret
 	github.com/wangyahua6688-maker/tk-common v1.0.7
-	github.com/wangyahua6688-maker/tk-proto v1.0.3
+	github.com/wangyahua6688-maker/tk-proto v1.0.4
 	github.com/zeromicro/go-zero v1.10.0
 	golang.org/x/time v0.11.0
 	google.golang.org/grpc v1.65.0
