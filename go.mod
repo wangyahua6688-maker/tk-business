@@ -2,14 +2,14 @@ module tk-business
 
 go 1.24
 
-replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
-replace github.com/wangyahua6688-maker/tk-common => ../tk-common
+//replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
+//replace github.com/wangyahua6688-maker/tk-common => ../tk-common
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
-	github.com/redis/go-redis/v9 v9.17.3 // indirect
-	github.com/wangyahua6688-maker/tk-common v1.0.6
-	github.com/wangyahua6688-maker/tk-proto v1.0.2
+	github.com/redis/go-redis/v9 v9.17.3 // indirect; indiret
+	github.com/wangyahua6688-maker/tk-common v1.0.7
+	github.com/wangyahua6688-maker/tk-proto v1.0.3
 	github.com/zeromicro/go-zero v1.10.0
 	golang.org/x/time v0.11.0
 	google.golang.org/grpc v1.65.0
@@ -87,7 +87,7 @@ require (
 	golang.org/x/text v0.28.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240711142825-46eb208f015d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	google.golang.org/protobuf v1.36.11
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
