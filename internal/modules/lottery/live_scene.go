@@ -33,8 +33,7 @@ func (s *Service) BuildLiveScenePage(specialLotteryID uint) (map[string]interfac
 	}
 	// 判断条件并进入对应分支逻辑。
 	if len(tabs) == 0 {
-		// 返回当前处理结果。
-		return nil, fmt.Errorf("special lottery not found")
+		return emptyLiveScenePayload(now), nil
 	}
 
 	// 2) 选择当前激活彩种：优先使用请求参数，缺省回退第一项。

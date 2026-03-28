@@ -9,6 +9,12 @@ func (s *Service) BuildHistory(infoID uint) (map[string]interface{}, error) {
 		// 返回当前处理结果。
 		return nil, err
 	}
+	if current == nil {
+		payload := emptyDrawHistoryPayload(0, "", "desc", true)
+		payload["lottery_info_id"] = infoID
+		payload["title"] = ""
+		return payload, nil
+	}
 	// 2) 历史开奖主数据来自 tk_draw_record（开奖区独立表）。
 	payload, err := s.BuildDrawHistoryBySpecialID(current.SpecialLotteryID, "desc", true, 80)
 	// 判断条件并进入对应分支逻辑。

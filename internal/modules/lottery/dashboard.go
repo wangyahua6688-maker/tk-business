@@ -42,6 +42,9 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		// 返回当前处理结果。
 		return nil, err
 	}
+	if sl == nil {
+		return emptyDashboardPayload(sid), nil
+	}
 	// 2) 优先读取当前彩种最新一期开奖记录（开奖区主数据）。
 	//    若开奖区表暂未录数，则回退到 tk_lottery_info，避免首页开奖区整块丢失。
 	current, err := s.dao.GetLatestDrawRecordBySpecialID(sid)
@@ -101,7 +104,10 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		// 判断条件并进入对应分支逻辑。
 		if infoErr != nil {
 			// 返回当前处理结果。
-			return nil, err
+			return nil, infoErr
+		}
+		if info == nil {
+			return emptyDashboardPayload(sid), nil
 		}
 		// 更新当前变量或字段值。
 		issue = info.Issue

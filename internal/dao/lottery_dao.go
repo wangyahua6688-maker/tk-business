@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -68,6 +69,9 @@ func (d *LotteryDAO) GetSpecialLottery(id uint) (*common_model.WSpecialLottery, 
 	var row common_model.WSpecialLottery
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
@@ -83,6 +87,9 @@ func (d *LotteryDAO) GetLatestLotteryInfoBySpecialID(sid uint) (*common_model.WL
 	if err := d.db.Where("special_lottery_id = ? AND status = 1", sid).
 		// 调用Order完成当前处理。
 		Order("is_current DESC, draw_at DESC, id DESC").First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
@@ -170,6 +177,9 @@ func (d *LotteryDAO) GetLotteryInfo(id uint) (*common_model.WLotteryInfo, error)
 	var row common_model.WLotteryInfo
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
@@ -373,6 +383,9 @@ func (d *LotteryDAO) FindOption(optionID uint) (*common_model.WLotteryOption, er
 	var row common_model.WLotteryOption
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.First(&row, optionID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
@@ -386,6 +399,9 @@ func (d *LotteryDAO) GetVoteRecord(infoID uint, voterHash string) (*common_model
 	var row common_model.WLotteryVoteRecord
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("lottery_info_id = ? AND voter_hash = ?", infoID, voterHash).First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}

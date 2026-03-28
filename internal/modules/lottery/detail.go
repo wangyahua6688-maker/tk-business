@@ -21,6 +21,9 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 		// 返回当前处理结果。
 		return nil, err
 	}
+	if current == nil {
+		return emptyLotteryDetailPayload(infoID), nil
+	}
 
 	// 2) 查询同彩种下的历史期号，用于详情页切换。
 	list, err := s.dao.ListLotteryInfosBySpecialID(current.SpecialLotteryID, 30)
@@ -96,7 +99,7 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 	// 定义并初始化当前变量。
 	drawRecordID := uint(0)
 	// 判断条件并进入对应分支逻辑。
-	if record, recErr := s.dao.GetLatestDrawRecordBySpecialID(current.SpecialLotteryID); recErr == nil {
+	if record, recErr := s.dao.GetLatestDrawRecordBySpecialID(current.SpecialLotteryID); recErr == nil && record != nil {
 		// 更新当前变量或字段值。
 		drawNumbers = extractDrawNumbersFromRecord(*record)
 		// 更新当前变量或字段值。

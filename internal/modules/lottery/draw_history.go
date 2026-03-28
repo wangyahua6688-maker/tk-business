@@ -21,6 +21,9 @@ func (s *Service) BuildDrawHistoryBySpecialID(specialLotteryID uint, orderMode s
 	}
 	// 定义并初始化当前变量。
 	order := normalizeOrderMode(orderMode)
+	if sl == nil {
+		return emptyDrawHistoryPayload(specialLotteryID, "", order, showFive), nil
+	}
 
 	// 2) 拉取开奖记录列表。
 	rows, err := s.dao.ListDrawRecordsBySpecialID(specialLotteryID, limit, order)
@@ -150,12 +153,19 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 		// 返回当前处理结果。
 		return nil, err
 	}
+	if row == nil {
+		return emptyDrawDetailPayload(recordID), nil
+	}
 	// 定义并初始化当前变量。
 	sl, err := s.dao.GetSpecialLottery(row.SpecialLotteryID)
 	// 判断条件并进入对应分支逻辑。
 	if err != nil {
 		// 返回当前处理结果。
 		return nil, err
+	}
+	specialLotteryName := ""
+	if sl != nil {
+		specialLotteryName = sl.Name
 	}
 
 	// 2) 提取号码与标签。
@@ -203,7 +213,7 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 		// 处理当前语句逻辑。
 		"special_lottery_id": row.SpecialLotteryID,
 		// 处理当前语句逻辑。
-		"special_lottery_name": sl.Name,
+		"special_lottery_name": specialLotteryName,
 		// 处理当前语句逻辑。
 		"issue": row.Issue,
 		// 处理当前语句逻辑。

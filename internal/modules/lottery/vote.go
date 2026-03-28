@@ -49,13 +49,14 @@ func (s *Service) Vote(infoID, optionID uint, meta VoteMeta) (map[string]interfa
 	}
 
 	// 4) 查询是否已经投过票（命中即直接返回）。
-	if _, err := s.dao.GetVoteRecord(infoID, voterHash); err == nil {
-		// 返回当前处理结果。
-		return nil, fmt.Errorf("already voted")
-		// 进入新的代码块进行处理。
-	} else if err != nil && err != gorm.ErrRecordNotFound {
+	record, err := s.dao.GetVoteRecord(infoID, voterHash)
+	if err != nil {
 		// 返回当前处理结果。
 		return nil, err
+	}
+	if record != nil {
+		// 返回当前处理结果。
+		return nil, fmt.Errorf("already voted")
 	}
 
 	// 5) 事务写入：插入投票记录 + 选项票数自增。
@@ -132,21 +133,20 @@ func (s *Service) GetVoteRecord(infoID uint, meta VoteMeta) (map[string]interfac
 	record, err := s.dao.GetVoteRecord(infoID, voterHash)
 	// 判断条件并进入对应分支逻辑。
 	if err != nil {
-		// 判断条件并进入对应分支逻辑。
-		if err == gorm.ErrRecordNotFound {
-			// 未投票时返回固定结构，减少前端判空逻辑。
-			return map[string]interface{}{
-				// 处理当前语句逻辑。
-				"voted": false,
-				// 处理当前语句逻辑。
-				"my_option_id": 0,
-				// 调用buildPollPayload完成当前处理。
-				"poll_options": buildPollPayload(options, totalVotes),
-				// 处理当前语句逻辑。
-			}, nil
-		}
 		// 返回当前处理结果。
 		return nil, err
+	}
+	if record == nil {
+		// 未投票时返回固定结构，减少前端判空逻辑。
+		return map[string]interface{}{
+			// 处理当前语句逻辑。
+			"voted": false,
+			// 处理当前语句逻辑。
+			"my_option_id": 0,
+			// 调用buildPollPayload完成当前处理。
+			"poll_options": buildPollPayload(options, totalVotes),
+			// 处理当前语句逻辑。
+		}, nil
 	}
 
 	// 返回当前处理结果。

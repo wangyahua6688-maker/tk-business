@@ -1,9 +1,11 @@
 package dao
 
 import (
+	"errors"
 	"strings"
 
 	common_model "github.com/wangyahua6688-maker/tk-common/models"
+	"gorm.io/gorm"
 )
 
 // GetLatestDrawRecordBySpecialID 查询指定彩种最新一期开奖记录。
@@ -16,6 +18,9 @@ func (d *LotteryDAO) GetLatestDrawRecordBySpecialID(sid uint) (*common_model.WDr
 		Order("is_current DESC, draw_at DESC, id DESC").
 		// 调用First完成当前处理。
 		First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
@@ -63,6 +68,9 @@ func (d *LotteryDAO) GetDrawRecord(id uint) (*common_model.WDrawRecord, error) {
 	var row common_model.WDrawRecord
 	// 判断条件并进入对应分支逻辑。
 	if err := d.db.Where("id = ? AND status = 1", id).First(&row).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		// 返回当前处理结果。
 		return nil, err
 	}
