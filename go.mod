@@ -2,8 +2,8 @@ module tk-business
 
 go 1.24
 
-//replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
-//replace github.com/wangyahua6688-maker/tk-common => ../tk-common
+replace github.com/wangyahua6688-maker/tk-proto => ../tk-proto
+replace github.com/wangyahua6688-maker/tk-common => ../tk-common
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5

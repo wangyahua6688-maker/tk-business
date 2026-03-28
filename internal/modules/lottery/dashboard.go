@@ -58,6 +58,12 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 	// 声明当前变量。
 	var labels []string
 	// 声明当前变量。
+	var colorLabels []string
+	// 声明当前变量。
+	var zodiacLabels []string
+	// 声明当前变量。
+	var wuxingLabels []string
+	// 声明当前变量。
 	var normalNumbers []int
 	// 定义并初始化当前变量。
 	specialNumber := 0
@@ -75,6 +81,10 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		numbers = extractDrawNumbersFromRecord(*current)
 		// 更新当前变量或字段值。
 		labels = extractDrawLabels(*current, numbers)
+		// 更新当前变量或字段值。
+		colorLabels = extractColorLabels(*current, numbers)
+		// 更新当前变量或字段值。
+		zodiacLabels, wuxingLabels = extractZodiacAndWuxingLabels(*current, numbers)
 		// 更新当前变量或字段值。
 		normalNumbers = splitCSVInts(current.NormalDrawResult)
 		// 定义并初始化当前变量。
@@ -103,6 +113,10 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		numbers = extractDrawNumbers(*info)
 		// 更新当前变量或字段值。
 		labels = buildPairLabels(numbers)
+		// 更新当前变量或字段值。
+		colorLabels = buildColorLabels(numbers)
+		// 更新当前变量或字段值。
+		zodiacLabels, wuxingLabels = buildZodiacAndWuxingLabels(numbers)
 		// 更新当前变量或字段值。
 		normalNumbers = splitCSVInts(info.NormalDrawResult)
 		// 定义并初始化当前变量。
@@ -135,7 +149,10 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 		hasLiveData = probeLiveStreamAvailable(sl.LiveStreamURL)
 	}
 
-	// 6) 统一输出首页/现场页开奖看板数据结构。
+	// 6) 严格按官方号码规则补齐玩法摘要，确保旧数据也能输出完整字段。
+	stats := deriveRecordStats(numbers)
+
+	// 7) 统一输出首页/现场页开奖看板数据结构。
 	drawResult := joinPaddedInts(numbers)
 	// 判断条件并进入对应分支逻辑。
 	if len(drawResult) == 0 {
@@ -191,6 +208,38 @@ func (s *Service) BuildDashboard(sid uint) (map[string]interface{}, error) {
 			"numbers": numbers,
 			// 处理当前语句逻辑。
 			"labels": labels,
+			// 处理当前语句逻辑。
+			"pair_labels": labels,
+			// 处理当前语句逻辑。
+			"color_labels": colorLabels,
+			// 处理当前语句逻辑。
+			"zodiac_labels": zodiacLabels,
+			// 处理当前语句逻辑。
+			"wuxing_labels": wuxingLabels,
+			// 处理当前语句逻辑。
+			"special_single_double": stats.SpecialSingleDouble,
+			// 处理当前语句逻辑。
+			"special_big_small": stats.SpecialBigSmall,
+			// 处理当前语句逻辑。
+			"sum_single_double": stats.SumSingleDouble,
+			// 处理当前语句逻辑。
+			"sum_big_small": stats.SumBigSmall,
+			// 处理当前语句逻辑。
+			"special_code": stats.SpecialCode,
+			// 处理当前语句逻辑。
+			"normal_code": stats.NormalCode,
+			// 处理当前语句逻辑。
+			"zheng1": stats.ZhengDescriptions[0],
+			// 处理当前语句逻辑。
+			"zheng2": stats.ZhengDescriptions[1],
+			// 处理当前语句逻辑。
+			"zheng3": stats.ZhengDescriptions[2],
+			// 处理当前语句逻辑。
+			"zheng4": stats.ZhengDescriptions[3],
+			// 处理当前语句逻辑。
+			"zheng5": stats.ZhengDescriptions[4],
+			// 处理当前语句逻辑。
+			"zheng6": stats.ZhengDescriptions[5],
 		},
 		// 处理当前语句逻辑。
 	}, nil

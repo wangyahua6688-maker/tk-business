@@ -44,7 +44,11 @@ func (s *Service) BuildDrawHistoryBySpecialID(specialLotteryID uint, orderMode s
 		// 定义并初始化当前变量。
 		numbers := extractDrawNumbersFromRecord(row)
 		// 定义并初始化当前变量。
+		stats := deriveRecordStats(numbers)
+		// 定义并初始化当前变量。
 		pairLabels := extractDrawLabels(row, numbers)
+		// 定义并初始化当前变量。
+		colorLabels := extractColorLabels(row, numbers)
 		// 定义并初始化当前变量。
 		zodiacLabels, wuxingLabels := extractZodiacAndWuxingLabels(row, numbers)
 		// 定义并初始化当前变量。
@@ -58,6 +62,10 @@ func (s *Service) BuildDrawHistoryBySpecialID(specialLotteryID uint, orderMode s
 		item := map[string]interface{}{
 			// 处理当前语句逻辑。
 			"id": row.ID,
+			// 处理当前语句逻辑。
+			"special_lottery_id": row.SpecialLotteryID,
+			// 处理当前语句逻辑。
+			"special_lottery_name": sl.Name,
 			// 处理当前语句逻辑。
 			"issue": row.Issue,
 			// 处理当前语句逻辑。
@@ -77,14 +85,39 @@ func (s *Service) BuildDrawHistoryBySpecialID(specialLotteryID uint, orderMode s
 			// 处理当前语句逻辑。
 			"labels": displayLabels,
 			// 处理当前语句逻辑。
+			"pair_labels": pairLabels,
+			// 处理当前语句逻辑。
+			"color_labels": colorLabels,
+			// 处理当前语句逻辑。
 			"zodiac_labels": zodiacLabels,
-		}
-		// 判断条件并进入对应分支逻辑。
-		if showFive {
-			// 更新当前变量或字段值。
-			item["wuxing_labels"] = wuxingLabels
-			// 更新当前变量或字段值。
-			item["pair_labels"] = pairLabels
+			// 处理当前语句逻辑。
+			"wuxing_labels": wuxingLabels,
+			// 处理当前语句逻辑。
+			"playback_url": row.PlaybackURL,
+			// 处理当前语句逻辑。
+			"special_single_double": pickString(row.SpecialSingleDouble, stats.SpecialSingleDouble),
+			// 处理当前语句逻辑。
+			"special_big_small": pickString(row.SpecialBigSmall, stats.SpecialBigSmall),
+			// 处理当前语句逻辑。
+			"sum_single_double": pickString(row.SumSingleDouble, stats.SumSingleDouble),
+			// 处理当前语句逻辑。
+			"sum_big_small": pickString(row.SumBigSmall, stats.SumBigSmall),
+			// 处理当前语句逻辑。
+			"special_code": pickString(row.SpecialCode, stats.SpecialCode),
+			// 处理当前语句逻辑。
+			"normal_code": pickString(row.NormalCode, stats.NormalCode),
+			// 处理当前语句逻辑。
+			"zheng1": pickString(row.Zheng1, stats.ZhengDescriptions[0]),
+			// 处理当前语句逻辑。
+			"zheng2": pickString(row.Zheng2, stats.ZhengDescriptions[1]),
+			// 处理当前语句逻辑。
+			"zheng3": pickString(row.Zheng3, stats.ZhengDescriptions[2]),
+			// 处理当前语句逻辑。
+			"zheng4": pickString(row.Zheng4, stats.ZhengDescriptions[3]),
+			// 处理当前语句逻辑。
+			"zheng5": pickString(row.Zheng5, stats.ZhengDescriptions[4]),
+			// 处理当前语句逻辑。
+			"zheng6": pickString(row.Zheng6, stats.ZhengDescriptions[5]),
 		}
 		// 更新当前变量或字段值。
 		items = append(items, item)
@@ -129,6 +162,12 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 	numbers := extractDrawNumbersFromRecord(*row)
 	// 定义并初始化当前变量。
 	labels := extractDrawLabels(*row, numbers)
+	// 定义并初始化当前变量。
+	colorLabels := extractColorLabels(*row, numbers)
+	// 定义并初始化当前变量。
+	zodiacLabels, wuxingLabels := extractZodiacAndWuxingLabels(*row, numbers)
+	// 定义并初始化当前变量。
+	resultBundle := buildDrawResultBundleView(numbers)
 
 	// 3) 自动补齐详情字段（后台没填时兜底）。
 	stats := deriveRecordStats(numbers)
@@ -144,6 +183,18 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 	specialCode := pickString(row.SpecialCode, stats.SpecialCode)
 	// 定义并初始化当前变量。
 	normalCode := pickString(row.NormalCode, stats.NormalCode)
+	// 定义并初始化当前变量。
+	zheng1 := pickString(row.Zheng1, stats.ZhengDescriptions[0])
+	// 定义并初始化当前变量。
+	zheng2 := pickString(row.Zheng2, stats.ZhengDescriptions[1])
+	// 定义并初始化当前变量。
+	zheng3 := pickString(row.Zheng3, stats.ZhengDescriptions[2])
+	// 定义并初始化当前变量。
+	zheng4 := pickString(row.Zheng4, stats.ZhengDescriptions[3])
+	// 定义并初始化当前变量。
+	zheng5 := pickString(row.Zheng5, stats.ZhengDescriptions[4])
+	// 定义并初始化当前变量。
+	zheng6 := pickString(row.Zheng6, stats.ZhengDescriptions[5])
 
 	// 4) 返回开奖详情结构。
 	return map[string]interface{}{
@@ -172,6 +223,14 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 		// 处理当前语句逻辑。
 		"labels": labels,
 		// 处理当前语句逻辑。
+		"pair_labels": labels,
+		// 处理当前语句逻辑。
+		"color_labels": colorLabels,
+		// 处理当前语句逻辑。
+		"zodiac_labels": zodiacLabels,
+		// 处理当前语句逻辑。
+		"wuxing_labels": wuxingLabels,
+		// 处理当前语句逻辑。
 		"playback_url": row.PlaybackURL,
 		// 处理当前语句逻辑。
 		"special_single_double": specialSingleDouble,
@@ -194,17 +253,19 @@ func (s *Service) BuildDrawDetail(recordID uint) (map[string]interface{}, error)
 		// 处理当前语句逻辑。
 		"normal_code": normalCode,
 		// 处理当前语句逻辑。
-		"zheng1": row.Zheng1,
+		"zheng1": zheng1,
 		// 处理当前语句逻辑。
-		"zheng2": row.Zheng2,
+		"zheng2": zheng2,
 		// 处理当前语句逻辑。
-		"zheng3": row.Zheng3,
+		"zheng3": zheng3,
 		// 处理当前语句逻辑。
-		"zheng4": row.Zheng4,
+		"zheng4": zheng4,
 		// 处理当前语句逻辑。
-		"zheng5": row.Zheng5,
+		"zheng5": zheng5,
 		// 处理当前语句逻辑。
-		"zheng6": row.Zheng6,
+		"zheng6": zheng6,
+		// 处理当前语句逻辑。
+		"result_bundle": resultBundle,
 		// 处理当前语句逻辑。
 	}, nil
 }
@@ -234,6 +295,8 @@ type recordStats struct {
 	SpecialCode string
 	// 处理当前语句逻辑。
 	NormalCode string
+	// 处理当前语句逻辑。
+	ZhengDescriptions [6]string
 }
 
 // deriveRecordStats 基于开奖号码自动计算详情字段兜底值。
@@ -245,32 +308,40 @@ func deriveRecordStats(numbers []int) recordStats {
 	}
 	// 定义并初始化当前变量。
 	total := 0
+	// 定义并初始化当前变量。
+	zhengDescriptions := [6]string{}
 	// 循环处理当前数据集合。
-	for _, n := range numbers {
+	for idx, n := range numbers {
 		// 更新当前变量或字段值。
 		total += n
+		// 前 6 个位置按正码玩法规则输出兜底描述。
+		if idx < 6 {
+			zhengDescriptions[idx] = composeZhengDescriptionView(compileNumberDetailView(n, idx+1))
+		}
 	}
 	// 定义并初始化当前变量。
 	special := numbers[6]
 	// 返回当前处理结果。
 	return recordStats{
-		// 调用oddEvenCN完成当前处理。
-		SpecialSingleDouble: oddEvenCN(special),
-		// 调用bigSmallCN完成当前处理。
-		SpecialBigSmall: bigSmallCN(special, 24),
-		// 调用oddEvenCN完成当前处理。
-		SumSingleDouble: oddEvenCN(total),
-		// 调用bigSmallCN完成当前处理。
-		SumBigSmall: bigSmallCN(total, 175),
+		// 严格按特码规则处理 49 和局。
+		SpecialSingleDouble: resultSpecialSingleDouble(special),
+		// 严格按特码规则处理 49 和局。
+		SpecialBigSmall: resultSpecialBigSmall(special),
+		// 总和单双按总分奇偶。
+		SumSingleDouble: totalSingleDoubleCN(total),
+		// 总和大小按 >=175 为大。
+		SumBigSmall: totalBigSmallCN(total),
 		// 调用fmt.Sprintf完成当前处理。
-		SpecialCode: fmt.Sprintf("%02d", special),
-		// 调用joinPaddedInts完成当前处理。
-		NormalCode: joinPaddedInts(numbers[:6]),
+		SpecialCode: fmt.Sprintf("%d", special),
+		// 与后台主表 normal_code 口径保持一致，使用逗号分隔原始数字。
+		NormalCode: joinIntCSV(numbers[:6]),
+		// 正码位置玩法描述兜底。
+		ZhengDescriptions: zhengDescriptions,
 	}
 }
 
-// oddEvenCN 输出中文单双。
-func oddEvenCN(v int) string {
+// totalSingleDoubleCN 输出总分单双。
+func totalSingleDoubleCN(v int) string {
 	// 判断条件并进入对应分支逻辑。
 	if v%2 == 0 {
 		return "双"
@@ -278,13 +349,22 @@ func oddEvenCN(v int) string {
 	return "单"
 }
 
-// bigSmallCN 输出中文大小（> threshold 为大）。
-func bigSmallCN(v, threshold int) string {
+// totalBigSmallCN 输出总分大小（>=175 为大）。
+func totalBigSmallCN(v int) string {
 	// 判断条件并进入对应分支逻辑。
-	if v > threshold {
+	if v >= 175 {
 		return "大"
 	}
 	return "小"
+}
+
+// joinIntCSV 按逗号拼接原始数字串。
+func joinIntCSV(nums []int) string {
+	parts := make([]string, 0, len(nums))
+	for _, num := range nums {
+		parts = append(parts, fmt.Sprintf("%d", num))
+	}
+	return strings.Join(parts, ",")
 }
 
 // pickString 优先使用手工配置值；为空时使用自动值。

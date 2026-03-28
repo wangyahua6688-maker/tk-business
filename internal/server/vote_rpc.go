@@ -5,12 +5,41 @@ import (
 
 	tkv1 "github.com/wangyahua6688-maker/tk-proto/gen/go/tk/v1"
 	lotteryModule "tk-business/internal/modules/lottery"
+	"tk-business/internal/svc"
 )
 
+// voteService 定义投票接口。
+type voteService interface {
+	GetVoteRecord(infoID uint, meta lotteryModule.VoteMeta) (map[string]interface{}, error)
+	Vote(infoID, optionID uint, meta lotteryModule.VoteMeta) (map[string]interface{}, error)
+}
+
+// VoteRPC 负责投票相关 RPC。
+type VoteRPC struct {
+	voteSvc voteService
+}
+
+// VoteRPCDeps 定义投票模块依赖。
+type VoteRPCDeps struct {
+	VoteService voteService
+}
+
+// NewVoteRPC 根据服务上下文创建投票模块 RPC。
+func NewVoteRPC(ctx *svc.ServiceContext) *VoteRPC {
+	return NewVoteRPCWithDeps(VoteRPCDeps{
+		VoteService: ctx.LotteryService,
+	})
+}
+
+// NewVoteRPCWithDeps 使用显式依赖创建投票模块 RPC。
+func NewVoteRPCWithDeps(deps VoteRPCDeps) *VoteRPC {
+	return &VoteRPC{voteSvc: deps.VoteService}
+}
+
 // VoteRecord 查询当前请求端在图纸下的投票状态。
-func (s *BusinessServer) VoteRecord(_ context.Context, req *tkv1.VoteRecordRequest) (*tkv1.JsonDataReply, error) {
+func (l *VoteRPC) VoteRecord(_ context.Context, req *tkv1.VoteRecordRequest) (*tkv1.JsonDataReply, error) {
 	// 将 RPC 请求透传到投票领域服务，统一使用设备元信息识别请求端。
-	payload, err := s.ctx.LotteryCore.GetVoteRecord(uint(req.GetLotteryInfoId()), lotteryModule.VoteMeta{
+	payload, err := l.voteSvc.GetVoteRecord(uint(req.GetLotteryInfoId()), lotteryModule.VoteMeta{
 		// 调用req.GetDeviceId完成当前处理。
 		DeviceID: req.GetDeviceId(),
 		// 调用req.GetClientIp完成当前处理。
@@ -28,9 +57,9 @@ func (s *BusinessServer) VoteRecord(_ context.Context, req *tkv1.VoteRecordReque
 }
 
 // Vote 提交投票并返回更新后的投票结果。
-func (s *BusinessServer) Vote(_ context.Context, req *tkv1.VoteRequest) (*tkv1.JsonDataReply, error) {
+func (l *VoteRPC) Vote(_ context.Context, req *tkv1.VoteRequest) (*tkv1.JsonDataReply, error) {
 	// 执行投票：包含防刷校验、重复投票校验、票数落库与统计计算。
-	payload, err := s.ctx.LotteryCore.Vote(uint(req.GetLotteryInfoId()), uint(req.GetOptionId()), lotteryModule.VoteMeta{
+	payload, err := l.voteSvc.Vote(uint(req.GetLotteryInfoId()), uint(req.GetOptionId()), lotteryModule.VoteMeta{
 		// 调用req.GetDeviceId完成当前处理。
 		DeviceID: req.GetDeviceId(),
 		// 调用req.GetClientIp完成当前处理。

@@ -84,6 +84,10 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 	// 定义并初始化当前变量。
 	drawLabels := buildSimpleLabels(drawNumbers)
 	// 定义并初始化当前变量。
+	drawColorLabels := buildColorLabels(drawNumbers)
+	// 定义并初始化当前变量。
+	drawZodiacLabels, drawWuxingLabels := buildZodiacAndWuxingLabels(drawNumbers)
+	// 定义并初始化当前变量。
 	drawIssue := current.Issue
 	// 定义并初始化当前变量。
 	drawYear := current.Year
@@ -97,6 +101,10 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 		drawNumbers = extractDrawNumbersFromRecord(*record)
 		// 更新当前变量或字段值。
 		drawLabels = extractDrawLabels(*record, drawNumbers)
+		// 更新当前变量或字段值。
+		drawColorLabels = extractColorLabels(*record, drawNumbers)
+		// 更新当前变量或字段值。
+		drawZodiacLabels, drawWuxingLabels = extractZodiacAndWuxingLabels(*record, drawNumbers)
 		// 更新当前变量或字段值。
 		drawIssue = record.Issue
 		// 更新当前变量或字段值。
@@ -211,6 +219,12 @@ func (s *Service) BuildDetail(ctx context.Context, infoID uint) (map[string]inte
 			"draw_numbers": drawNumbers,
 			// 处理当前语句逻辑。
 			"draw_labels": drawLabels,
+			// 处理当前语句逻辑。
+			"color_labels": drawColorLabels,
+			// 处理当前语句逻辑。
+			"zodiac_labels": drawZodiacLabels,
+			// 处理当前语句逻辑。
+			"wuxing_labels": drawWuxingLabels,
 			// 处理当前语句逻辑。
 			"playback_url": drawPlaybackURL,
 			// 处理当前语句逻辑。

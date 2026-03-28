@@ -60,113 +60,86 @@ func extractDrawNumbersFromRecord(record common_model.WDrawRecord) []int {
 	return splitCSVInts(record.DrawResult)
 }
 
-// buildSimpleLabels 按号码生成占位五行标签（后续可替换为真实映射规则）。
+// buildSimpleLabels 基于官方号码映射生成“生肖/五行”组合标签。
 func buildSimpleLabels(numbers []int) []string {
-	// 定义并初始化当前变量。
-	labels := make([]string, 0, len(numbers))
-	// 定义并初始化当前变量。
-	elements := []string{"金", "木", "水", "火", "土"}
-	// 循环处理当前数据集合。
-	for _, n := range numbers {
-		// 更新当前变量或字段值。
-		labels = append(labels, elements[n%len(elements)])
-	}
-	// 返回当前处理结果。
-	return labels
+	return buildPairLabels(numbers)
 }
 
-// extractDrawLabels 优先读取开奖记录标签；标签缺失时自动生成“生肖/五行”占位标签。
+// extractDrawLabels 优先读取开奖记录标签；标签缺失时自动生成“生肖/五行”标签。
 func extractDrawLabels(record common_model.WDrawRecord, numbers []int) []string {
-	// 定义并初始化当前变量。
 	labels := splitCSVLabels(record.DrawLabels)
-	// 判断条件并进入对应分支逻辑。
 	if len(labels) == len(numbers) && len(labels) > 0 {
-		// 返回当前处理结果。
 		return labels
 	}
-	// 返回当前处理结果。
 	return buildPairLabels(numbers)
+}
+
+// extractColorLabels 提取波色标签。
+func extractColorLabels(record common_model.WDrawRecord, numbers []int) []string {
+	labels := splitCSVLabels(record.ColorLabels)
+	if len(labels) == len(numbers) && len(labels) > 0 {
+		return labels
+	}
+	return buildColorLabels(numbers)
 }
 
 // extractZodiacAndWuxingLabels 提取“属相/五行”两组标签。
 func extractZodiacAndWuxingLabels(record common_model.WDrawRecord, numbers []int) ([]string, []string) {
-	// 1) 优先使用独立字段，避免前端每次拆分“属相/五行”组合串。
 	zodiac := splitCSVLabels(record.ZodiacLabels)
-	// 定义并初始化当前变量。
 	wuxing := splitCSVLabels(record.WuxingLabels)
-	// 判断条件并进入对应分支逻辑。
 	if len(zodiac) == len(numbers) && len(wuxing) == len(numbers) && len(zodiac) > 0 {
-		// 返回当前处理结果。
 		return zodiac, wuxing
 	}
-
-	// 2) 兼容旧数据：从 draw_labels（生肖/五行）拆分。
-	paired := extractDrawLabels(record, numbers)
-	// 判断条件并进入对应分支逻辑。
-	if len(paired) == 0 {
-		// 返回当前处理结果。
-		return []string{}, []string{}
-	}
-	// 更新当前变量或字段值。
-	zodiac = make([]string, 0, len(paired))
-	// 更新当前变量或字段值。
-	wuxing = make([]string, 0, len(paired))
-	// 循环处理当前数据集合。
-	for _, item := range paired {
-		// 定义并初始化当前变量。
-		z, w := splitPairLabel(item)
-		// 更新当前变量或字段值。
-		zodiac = append(zodiac, z)
-		// 更新当前变量或字段值。
-		wuxing = append(wuxing, w)
-	}
-	// 返回当前处理结果。
-	return zodiac, wuxing
+	return buildZodiacAndWuxingLabels(numbers)
 }
 
 // splitCSVLabels 解析开奖记录标签串（逗号/空格/换行分隔）。
 func splitCSVLabels(raw string) []string {
-	// 定义并初始化当前变量。
 	parts := strings.FieldsFunc(strings.TrimSpace(raw), func(r rune) bool {
-		// 返回当前处理结果。
 		return r == ',' || r == '|' || r == ';' || r == '\n' || r == '\r' || r == '\t'
 	})
-	// 定义并初始化当前变量。
 	out := make([]string, 0, len(parts))
-	// 循环处理当前数据集合。
 	for _, p := range parts {
-		// 定义并初始化当前变量。
 		v := strings.TrimSpace(p)
-		// 判断条件并进入对应分支逻辑。
 		if v == "" {
-			// 处理当前语句逻辑。
 			continue
 		}
-		// 更新当前变量或字段值。
 		out = append(out, v)
 	}
-	// 返回当前处理结果。
 	return out
+}
+
+// buildColorLabels 生成波色标签，用于旧数据或主表字段缺失时的展示兜底。
+func buildColorLabels(numbers []int) []string {
+	out := make([]string, 0, len(numbers))
+	for _, n := range numbers {
+		out = append(out, common_model.DrawResultColorWaveMap[n])
+	}
+	return out
+}
+
+// buildZodiacAndWuxingLabels 基于官方号码映射生成“属相/五行”两组标签。
+func buildZodiacAndWuxingLabels(numbers []int) ([]string, []string) {
+	zodiac := make([]string, 0, len(numbers))
+	wuxing := make([]string, 0, len(numbers))
+	for _, n := range numbers {
+		zodiac = append(zodiac, common_model.DrawResultZodiacMap[n])
+		wuxing = append(wuxing, common_model.DrawResultWuxingMap[n])
+	}
+	return zodiac, wuxing
 }
 
 // buildPairLabels 生成“生肖/五行”标签，用于开奖记录标签缺失时的展示兜底。
 func buildPairLabels(numbers []int) []string {
-	// 定义并初始化当前变量。
-	zodiacs := []string{"鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"}
-	// 定义并初始化当前变量。
-	elements := []string{"金", "木", "水", "火", "土"}
-	// 定义并初始化当前变量。
+	zodiac, wuxing := buildZodiacAndWuxingLabels(numbers)
 	out := make([]string, 0, len(numbers))
-	// 循环处理当前数据集合。
-	for _, n := range numbers {
-		// 定义并初始化当前变量。
-		zodiac := zodiacs[(n-1)%len(zodiacs)]
-		// 定义并初始化当前变量。
-		element := elements[(n-1)%len(elements)]
-		// 更新当前变量或字段值。
-		out = append(out, zodiac+"/"+element)
+	for idx := range numbers {
+		label := zodiac[idx]
+		if wuxing[idx] != "" {
+			label = strings.TrimSpace(label + "/" + wuxing[idx])
+		}
+		out = append(out, label)
 	}
-	// 返回当前处理结果。
 	return out
 }
 

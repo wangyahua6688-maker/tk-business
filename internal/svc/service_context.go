@@ -20,12 +20,12 @@ import (
 type ServiceContext struct {
 	// Config 保存启动配置，便于下游模块读取限流/开关参数。
 	Config config.Config
-	// HomeCore 负责首页聚合与分类库能力（无缓存，供内部穿透调用）。
-	HomeCore *homeModule.Service
-	// CachedHomeCore 带 Redis 缓存的首页服务（RPC 层优先使用此版本）。
-	CachedHomeCore *homeModule.CachedService
-	// LotteryCore 负责开奖、图纸详情、投票、现场页等核心业务能力。
-	LotteryCore *lotteryModule.Service
+	// HomeService 负责首页聚合与分类库能力（无缓存，供内部穿透调用）。
+	HomeService *homeModule.Service
+	// CachedHomeService 带 Redis 缓存的首页服务（RPC 层优先使用此版本）。
+	CachedHomeService *homeModule.CachedService
+	// LotteryService 负责开奖、图纸详情、投票、现场页等核心业务能力。
+	LotteryService *lotteryModule.Service
 }
 
 // NewServiceContext 创建 ServiceContext 实例。
@@ -38,7 +38,7 @@ func NewServiceContext(c config.Config) (*ServiceContext, error) {
 
 	// 2) 初始化首页 DAO 与首页聚合服务（基础版，无缓存）。
 	homeDAO := dao.NewHomeDAO(db)
-	homeCore := homeModule.NewService(homeDAO)
+	homeService := homeModule.NewService(homeDAO)
 
 	// 3) 初始化开奖 DAO 与用户域（论坛）RPC 客户端。
 	lotteryDAO := dao.NewLotteryDAO(db)
@@ -62,16 +62,16 @@ func NewServiceContext(c config.Config) (*ServiceContext, error) {
 	// 5) 初始化带缓存的首页服务（RPC 层优先使用此版本）。
 	// overviewTTL 使用与 scene 相同的配置入口；如需独立配置可扩展 config.go。
 	overviewTTL := 5 * time.Minute // 首页聚合数据缓存默认 5 分钟
-	cachedHomeCore := homeModule.NewCachedService(homeCore, redisClient, overviewTTL)
+	cachedHomeService := homeModule.NewCachedService(homeService, redisClient, overviewTTL)
 
 	// 6) 初始化开奖服务（含投票防刷 + Redis 现场缓存）。
-	lotteryCore := lotteryModule.NewService(lotteryDAO, userClient, redisClient, sceneTTL)
+	lotteryService := lotteryModule.NewService(lotteryDAO, userClient, redisClient, sceneTTL)
 
 	// 7) 将全部核心模块注入上下文。
 	return &ServiceContext{
-		Config:         c,
-		HomeCore:       homeCore,
-		CachedHomeCore: cachedHomeCore,
-		LotteryCore:    lotteryCore,
+		Config:            c,
+		HomeService:       homeService,
+		CachedHomeService: cachedHomeService,
+		LotteryService:    lotteryService,
 	}, nil
 }
